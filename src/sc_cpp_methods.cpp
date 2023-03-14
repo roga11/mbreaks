@@ -87,9 +87,9 @@ arma::mat sc_datemat(arma::mat y, arma::mat z, int h){
 //' @export
 // [[Rcpp::export]]
 arma::vec mlef(int start, arma::vec y, arma::mat z, int q, arma::mat x, int p, int h, int last){
-  Rcpp::Environment jointMNbreaks("package:jointMNbreaks");
-  Rcpp::Function invpd = jointMNbreaks["invpd"];
-  Rcpp::Function vec = jointMNbreaks["vec"];
+  Rcpp::Environment mbreaks("package:mbreaks");
+  Rcpp::Function invpd = mbreaks["invpd"];
+  Rcpp::Function vec = mbreaks["vec"];
   double pi = arma::datum::pi;
   arma::vec loglik(last, arma::fill::zeros);
   if (p>0){
