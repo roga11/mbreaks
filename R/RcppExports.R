@@ -17,3 +17,48 @@ rcpparma_bothproducts <- function(x) {
     .Call(`_mbreaks_rcpparma_bothproducts`, x)
 }
 
+#' @title Compute SSR recursively
+#' 
+#' @description This procedure computes recursive residuals from a data set that starts
+#' at date "start" and ends at date "last". It returns a vector of sum of
+#' squared residuals (SSR) of length last-start+1 (stored for convenience in a vector of length T).
+#' 
+#' @param start starting entry of the sample used.
+#' @param y dependent variable
+#' @param z matrix of regressors of dimension q
+#' @param h minimal length of a segment
+#' @param last ending date of the last segment considered.
+#' 
+#' @details Note: This code is an adaptation of the one originally written by Yohei 
+#' Yamamoto and Pierre Perron for MATLAB. Original codes can be found on 
+#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' 
+#' @references Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
+#' @references Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
+#' 
+#' @export
+ssr_vec <- function(start, y, z, h, last) {
+    .Call(`_mbreaks_ssr_vec`, start, y, z, h, last)
+}
+
+#' @export
+sc_datemat <- function(y, z, h) {
+    .Call(`_mbreaks_sc_datemat`, y, z, h)
+}
+
+#' @title MLE function
+#' 
+#' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+#' @export
+mlef <- function(start, y, z, q, x, p, h, last) {
+    .Call(`_mbreaks_mlef`, start, y, z, q, x, p, h, last)
+}
+
+#' @title MLE function
+#' 
+#' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+#' @export
+mlebigvec <- function(y, z, q, x, p, h, bigt) {
+    .Call(`_mbreaks_mlebigvec`, y, z, q, x, p, h, bigt)
+}
+

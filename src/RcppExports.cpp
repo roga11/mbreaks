@@ -54,12 +54,79 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// ssr_vec
+arma::vec ssr_vec(int start, arma::vec y, arma::mat z, int h, int last);
+RcppExport SEXP _mbreaks_ssr_vec(SEXP startSEXP, SEXP ySEXP, SEXP zSEXP, SEXP hSEXP, SEXP lastSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type start(startSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type z(zSEXP);
+    Rcpp::traits::input_parameter< int >::type h(hSEXP);
+    Rcpp::traits::input_parameter< int >::type last(lastSEXP);
+    rcpp_result_gen = Rcpp::wrap(ssr_vec(start, y, z, h, last));
+    return rcpp_result_gen;
+END_RCPP
+}
+// sc_datemat
+arma::mat sc_datemat(arma::mat y, arma::mat z, int h);
+RcppExport SEXP _mbreaks_sc_datemat(SEXP ySEXP, SEXP zSEXP, SEXP hSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type z(zSEXP);
+    Rcpp::traits::input_parameter< int >::type h(hSEXP);
+    rcpp_result_gen = Rcpp::wrap(sc_datemat(y, z, h));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mlef
+arma::vec mlef(int start, arma::vec y, arma::mat z, int q, arma::mat x, int p, int h, int last);
+RcppExport SEXP _mbreaks_mlef(SEXP startSEXP, SEXP ySEXP, SEXP zSEXP, SEXP qSEXP, SEXP xSEXP, SEXP pSEXP, SEXP hSEXP, SEXP lastSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type start(startSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type z(zSEXP);
+    Rcpp::traits::input_parameter< int >::type q(qSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type p(pSEXP);
+    Rcpp::traits::input_parameter< int >::type h(hSEXP);
+    Rcpp::traits::input_parameter< int >::type last(lastSEXP);
+    rcpp_result_gen = Rcpp::wrap(mlef(start, y, z, q, x, p, h, last));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mlebigvec
+arma::vec mlebigvec(arma::vec y, arma::mat z, int q, arma::mat x, int p, int h, int bigt);
+RcppExport SEXP _mbreaks_mlebigvec(SEXP ySEXP, SEXP zSEXP, SEXP qSEXP, SEXP xSEXP, SEXP pSEXP, SEXP hSEXP, SEXP bigtSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type z(zSEXP);
+    Rcpp::traits::input_parameter< int >::type q(qSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type p(pSEXP);
+    Rcpp::traits::input_parameter< int >::type h(hSEXP);
+    Rcpp::traits::input_parameter< int >::type bigt(bigtSEXP);
+    rcpp_result_gen = Rcpp::wrap(mlebigvec(y, z, q, x, p, h, bigt));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_mbreaks_rcpparma_hello_world", (DL_FUNC) &_mbreaks_rcpparma_hello_world, 0},
     {"_mbreaks_rcpparma_outerproduct", (DL_FUNC) &_mbreaks_rcpparma_outerproduct, 1},
     {"_mbreaks_rcpparma_innerproduct", (DL_FUNC) &_mbreaks_rcpparma_innerproduct, 1},
     {"_mbreaks_rcpparma_bothproducts", (DL_FUNC) &_mbreaks_rcpparma_bothproducts, 1},
+    {"_mbreaks_ssr_vec", (DL_FUNC) &_mbreaks_ssr_vec, 5},
+    {"_mbreaks_sc_datemat", (DL_FUNC) &_mbreaks_sc_datemat, 3},
+    {"_mbreaks_mlef", (DL_FUNC) &_mbreaks_mlef, 8},
+    {"_mbreaks_mlebigvec", (DL_FUNC) &_mbreaks_mlebigvec, 7},
     {NULL, NULL, 0}
 };
 
