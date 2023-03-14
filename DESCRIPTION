@@ -1,0 +1,41 @@
+Package: mbreaks
+Type: Package
+Title: Estimation and inference for structural breaks in linear regression models
+Version: 0.0.1.9000
+Date: 2023-02-18
+Authors@R:
+  c(person(given = "Linh", 
+           family = "Nguyen", 
+           role = c("aut"),
+           email = "nguye535@purdue.edu"),       
+    person(given = "Pierre", 
+           family = "Perron", 
+           role = c("aut"),
+           email = "perron@bu.edu"),
+    person(given = "Gabriel", 
+           family = "Rodriguez-Rondon", 
+           role = c("cre","aut"), 
+           email = "gabriel.rodriguezrondon@mail.mcgill.ca"),
+    person(given = "Yohei", 
+           family = "Yamamoto", 
+           role = c("aut"),
+           email = "yohei.yamamoto@r.hit-u.ac.jp"))
+Maintainer: Gabriel Rodriguez-Rondon <gabriel.rodriguezrondon@mail.mcgill.ca>
+Description: The library contains efficient dynamic programming approach to conduct estimation, inference and testing for linear models in presence of structural breaks.
+URL: https://github.com/roga11/mbreaks
+BugReports: https://github.com/roga11/mbreaks/issues
+License: GPL (>= 2)
+Encoding: UTF-8
+Imports: 
+  stats,
+  rlang,
+  pracma,
+  combinat,
+  Rcpp (>= 1.0.8)
+LinkingTo: 
+  Rcpp, 
+  RcppArmadillo
+RoxygenNote: 7.2.1
+Depends: 
+    R (>= 2.10)
+LazyData: true
