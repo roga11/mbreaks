@@ -1382,16 +1382,3 @@ estdate <- function(y,z,q,x,p,K,bigt,h,m,n,cbrind,vbrind){
   return(list(brk = brk, beta = estimbr_out$nbeta, brc = segmake_out$brc, brv = segmake_out$brv, res = estimbr_out$res))
 }
 
-#' @title Vectorize 
-#' 
-#' @description procedure to jointly estimates the coefficient and variance break dates following section 5.1 of Qu and Perron (2007). The code follows est.m of Qu and Perron (2007)
-#' 
-#' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
-#' 
-#' @export
-vec <- function(a){
-  v <- c(a)  
-  return(v)
-}
-
-

@@ -3,27 +3,6 @@
 //[[Rcpp::depends(RcppArmadillo)]]
 using namespace Rcpp;
 
-// // ==============================================================================
-// //' @title Standard normal errors using box Muller 
-// //' 
-// //' @param \code{T} Integer determining the length of the process to be simulated
-// //' @param \code{cov_mat}  q x q covariance matrix 
-// //' 
-// //' @keywords internal
-// //' 
-// //' @export
-// // [[Rcpp::export]]
-// arma::mat randSN(int T, arma::mat cov_mat){
-//   int q = cov_mat.n_rows;
-//   double pi = arma::datum::pi;
-//   arma::mat U1(T, q, arma::fill::randu);
-//   arma::mat U2(T, q, arma::fill::randu);
-//   arma::mat eps = trans(trans(sqrt(-2*log(U1))%cos(2*pi*U2)));
-//   arma::mat C = chol(cov_mat, "lower");
-//   arma::mat eps_corr = trans(C*trans(eps));
-//   return(eps_corr);
-// }
-
 //' @title Compute SSR recursively
 //' 
 //' @description This procedure computes recursive residuals from a data set that starts
@@ -90,7 +69,6 @@ arma::vec ssrbigvec(arma::mat y, arma::mat z, int h){
 arma::vec mlef(int start, arma::vec y, arma::mat z, int q, arma::mat x, int p, int h, int last){
   Rcpp::Environment mbreaks("package:mbreaks");
   Rcpp::Function invpd = mbreaks["invpd"];
-  Rcpp::Function vec = mbreaks["vec"];
   double pi = arma::datum::pi;
   arma::vec loglik(last, arma::fill::zeros);
   if (p>0){
@@ -112,7 +90,7 @@ arma::vec mlef(int start, arma::vec y, arma::mat z, int q, arma::mat x, int p, i
   List vstar_ls;
   arma::mat vstarinpd;
   arma::mat ibigv;
-  while ((max(abs(vec(vvar-vstar)))>1e-6) & (itr<1000)){
+  while ((max(abs(vectorise(vvar-vstar)))>1e-6) & (itr<1000)){
     vstar = vvar;
     vstar_ls = invpd(vstar);
     vstarinpd = as<arma::mat>(vstar_ls["xinv"]);
@@ -151,7 +129,7 @@ arma::vec mlef(int start, arma::vec y, arma::mat z, int q, arma::mat x, int p, i
     vvar    = trans(res)*res/(j-i+1);
     itr     = 1;
     vstar   = vvar + 10;
-    while ((max(abs(vec(vvar-vstar)))>1e-6) & (itr<1000)){
+    while ((max(abs(vectorise(vvar-vstar)))>1e-6) & (itr<1000)){
       vstar = vvar;
       icstar_ls = invpd(vstar + z.rows((j-1)+1,j)*ihstar*trans(z.rows((j-1)+1,j)));
       icstar = as<arma::mat>(icstar_ls["xinv"]);
