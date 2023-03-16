@@ -168,20 +168,6 @@ regim_dt <- function(bvec){
 }
 
 
-#' @title Find max indicator 
-#' 
-#' @export
-maxindc <- function(A){
-  n <- ncol(A)
-  c <- matrix(0,n,1)
-  for (i in 1:n){
-    index <- which.max(A[,i])
-    c[i,] <- index
-  }
-  return(c)
-}
-
-
 #' @title Covariance matrix of estimates delta.
 #' 
 #' @description procedure that compute the covariance matrix of the estimates delta.
@@ -1197,14 +1183,14 @@ dating_loglik <- function(bigvec,h,m,bigt){
           dvec[jb,1] <- optlr[jb,(ib-1)]-0.5*(bigt-jb+1)*((log(2*pi)+1)+log(sum(bigvec[(m*bigt+jb+1):(bigt*(m+1)),])/(bigt-jb)))
         }
         optlr[jlast,ib]  <- max(dvec[(ib*h):(jlast-h),1])
-        optdat[jlast,ib] <- (ib*h-1) + maxindc(as.matrix(dvec[(ib*h):(jlast-h),1]))
+        optdat[jlast,ib] <- (ib*h-1) + which.max(dvec[(ib*h):(jlast-h),1])
       }else{
         for (jlast in ((ib+1)*h):bigt){
           for (jb in (ib*h):(jlast-h)){
             dvec[jb,1] <- optlr[jb,(ib-1)]-0.5*(jlast-jb+1)*((log(2*pi)+1)+log(sum(bigvec[(ib*bigt+jb+1):(ib*bigt+jlast),])/(jlast-jb)))  
           }
           optlr[jlast,ib] <- max(dvec[(ib*h):(jlast-h),1])
-          optdat[jlast,ib] <- (ib*h-1)+maxindc(as.matrix(dvec[(ib*h):(jlast-h),1]))
+          optdat[jlast,ib] <- (ib*h-1)+which.max(dvec[(ib*h):(jlast-h),1])
         }
       }
       datevec[ib,ib] <- optdat[bigt,ib]
