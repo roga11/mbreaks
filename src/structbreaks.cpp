@@ -70,14 +70,15 @@ arma::vec ssr_vec(int start, arma::vec y, arma::mat z, int h, int last){
 
 //' @export
 // [[Rcpp::export]]
-arma::mat sc_datemat(arma::mat y, arma::mat z, int h){
-  int Tsize = y.n_rows;
-  arma::mat date_mat(Tsize, Tsize, arma::fill::zeros);
-  for (int xs = 0; xs<(Tsize-h+1); xs++){
-    arma::vec ssr_vec_tmp = ssr_vec(xs+1,y,z,h,Tsize);
-    date_mat.submat(xs, xs, xs, Tsize-1) = trans(ssr_vec_tmp.subvec(xs,Tsize-1));
+arma::vec ssrbigvec(arma::mat y, arma::mat z, int h){
+  int bigt = y.n_rows;
+  arma::vec bigvec(bigt*(bigt+1)/2, arma::fill::zeros);
+  arma::vec ssr_vec_tmp;
+  for (int i =1; i<=(bigt-h+1); i ++){
+    ssr_vec_tmp = ssr_vec(i,y,z,h,bigt);
+    bigvec.rows(((i-1)*bigt+i-(i-1)*i/2)-1,(i*bigt-(i-1)*i/2)-1) = ssr_vec_tmp.rows(i-1,bigt-1);
   }
-  return(date_mat);
+  return(bigvec);
 }
 
 

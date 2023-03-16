@@ -2,7 +2,7 @@ Package: mbreaks
 Type: Package
 Title: Estimation and inference for structural breaks in linear regression models
 Version: 2.0.1.9000
-Date: 2023-03-14
+Date: 2023-03-16
 Authors@R:
   c(person(given = "Linh", 
            family = "Nguyen", 

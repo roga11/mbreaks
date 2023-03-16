@@ -645,6 +645,9 @@ pslr9 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
     warning("unknown names in control: ", paste(noNms,collapse=", ")) 
   }
   # ----- Perform checks for inputs 
+  if (m<1){
+    stop("There must be at least one break in mean under null hypothesis (i.e. m >= 1).")
+  }
   if (is.matrix(z)){
     q <- ncol(z)
   }else{
@@ -664,7 +667,7 @@ pslr9 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
   }else{
     stop("y must be a (T x 1) matrix.") 
   }
-  # ----- 1)break date estimation under the null
+  # ----- 1) break date estimation under the null
   if (p==0){
     reg0 <- z
   }else{
@@ -778,9 +781,9 @@ pslr9 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
       seglr0      <- ploglik(segres0,ni,brvi)$loglik
       
       if (p==0){
-        dateveci <- dating_purescSSR(segys,segzs, 1, h)$datevec # need to add controls
+        dateveci <- dating_purescSSR(segys,segzs, 1, h)$datevec 
       }else{
-        dateveci <- dating_partscSSR(segys, segzs, segxs, 1, h)$datevec # need to add controls
+        dateveci <- dating_partscSSR(segys, segzs, segxs, 1, h)$datevec 
       }
       
       brci      <- as.matrix(dateveci[1,1])
@@ -874,6 +877,9 @@ pslr10<- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
     warning("unknown names in control: ", paste(noNms,collapse=", ")) 
   }
   # ----- Perform checks for inputs 
+  if (n<1){
+    stop("There must be at least one break in variance under null hypothesis (i.e. n >= 1).")
+  }
   if (is.matrix(z)){
     q <- ncol(z)
   }else{

@@ -195,7 +195,7 @@ maxindc <- function(A){
 #' @references Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
 #' 
 #' @export
-parti_og <- function(start,b1,b2,last,bigvec,bigt){
+parti <- function(start,b1,b2,last,bigvec,bigt){
   # procedure to obtain an optimal one break partitions for a segment that
   # starts at date start and ends at date last. It returns the optimal break
   # and the associated SSR.
@@ -216,46 +216,7 @@ parti_og <- function(start,b1,b2,last,bigvec,bigt){
   ssrmin <- t(min(dvec[b1:b2,1]))
   minindcdvec <- which.min(dvec[b1:b2,1])
   dx <- (b1-1)+t(minindcdvec)
-  return(cbind(ssrmin, dx)) # convert this output to list
-}
-
-#' @title optimal break partitions for a given segment
-#'
-#' @description procedure to obtain an optimal one break partitions for a segment that
-#' starts at date start and ends at date last. It returns the optimal break and the
-#' associated SSR.
-#'
-#' @details Note: This code is an adaptation of the one originally written by Yohei
-#' Yamamoto and Pierre Perron for MATLAB. Original codes can be found on
-#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
-#'
-#' @references Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
-#' @references Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
-#'
-#' @export
-parti <- function(start, b1, b2, last, date_mat){
-  # procedure to obtain an optimal one break partitions for a segment that
-  # starts at date start and ends at date last. It returns the optimal break
-  # and the associated SSR.
-
-  # start: beginning of the segment considered
-  # b1: first possible break date
-  # b2: last possible break date
-  # last: end of segment considered
-  # date_mat: matrix with SSR (see sc_date_mat)
-
-  Tsize <- nrow(date_mat)
-  dvec <- matrix(0, Tsize, 1)
-
-  j <- b1
-  while (j <= b2){
-    dvec[j,1] <- date_mat[start,j] + date_mat[j+1,last]
-    j <- j + 1
-  }
-  ssrmin <- t(min(dvec[(b1:b2),1]))
-  minindcdvec <- which.min(dvec[(b1:b2),1])
-  dx <- (b1-1)+t(minindcdvec)
-  return(cbind(ssrmin, dx)) # convert this output to list
+  return(list(ssrmin = ssrmin, dx = dx)) 
 }
 
 #' @title optimal break partitions for a given segment using log-likelihood
@@ -276,7 +237,7 @@ parti_loglik <- function(start,b1,b2,last,bigvec,bigt){
   }
   lrmax <- max(dvec[b1:b2,1])
   dx <- (b1-1) + maxindc(as.matrix(dvec[b1:b2,1]))
-  return(cbind(lrmax, dx)) # convert this output to list
+  return(list(lrmax = lrmax, dx = dx)) 
 }
 
 
@@ -779,6 +740,7 @@ estim <- function(y,z,x,m,b,robust,prewhit,hetomega,hetq,hetdat,hetvar){
 
 #' @title Get critical values using equations from Bai Perron (2003)
 #' 
+#' @references Bai, J. and Perron, P. (2003), Critical values for multiple structural change tests. \emph{The Econometrics Journal}, 6: 72-78. https://doi.org/10.1111/1368-423X.00102
 #' @export
 getcv <- function(alpha, q, k, eps = 0.1){
   if (alpha == 0.05){
@@ -1124,6 +1086,7 @@ bigvec_residuals <- function(y,z,b,q,m){
   return(bigvec)
 }
 
+
 #' @title Compute global break dates for pure structural change model
 #' 
 #' @description This is the main procedure which calculates the break points that globally
@@ -1151,17 +1114,17 @@ dating_purescSSR <- function(y, z, m, h){
   optssr    <- matrix(0,bigT,m)
   glb       <- matrix(0,m,1)
   dvec      <- matrix(0,bigT,1)
-  date_mat  <- sc_datemat(y, z, h)
+  bigvec    <- ssrbigvec(y, z, h)
   # Determine global optimum break dates
   if (m==1){
-    ssrmin_datx <- parti(1, h, bigT-h, bigT, date_mat)
-    datevec[1,1] <- ssrmin_datx[1,2]
-    glb[1,1] <- ssrmin_datx[1,1]
+    ssrmin_datx <- parti(1, h, bigT-h, bigT, bigvec, bigT)
+    datevec[1,1] <- ssrmin_datx$dx
+    glb[1,1] <- ssrmin_datx$ssrmin
   }else{
     for (j1 in (2*h):bigT){
-      ssrmin_datx <- parti(1, h, j1-h, j1, date_mat)
-      optdat[j1,1] <- ssrmin_datx[1,2]
-      optssr[j1,1] <- ssrmin_datx[1,1]
+      ssrmin_datx <- parti(1, h, j1-h, j1, bigvec, bigT)
+      optdat[j1,1] <- ssrmin_datx$dx
+      optssr[j1,1] <- ssrmin_datx$ssrmin
     }
     glb[1,1] <- optssr[bigT,1]
     datevec[1,1] <- optdat[bigT,1]
@@ -1193,7 +1156,7 @@ dating_purescSSR <- function(y, z, m, h){
       glb[ib,1] <- optssr[bigT,ib]
     }
   }
-  return(list(glob = glb, datevec = datevec, date_mat = date_mat))
+  return(list(glob = glb, datevec = datevec, bigvec = bigvec))
 }
 
 
@@ -1222,8 +1185,8 @@ dating_partscSSR <- function(y, z, x, m, h, thtol = 1e-6, maxi = 10000){
     puresc_out <- dating_purescSSR(y, zz, mi, h, con)
     globnl <- puresc_out$glob
     datenl <- puresc_out$datevec
-    date_mat <- puresc_out$datemat
-      
+    bigvec <- puresc_out$bigvec
+    
     xbar <- pzbar(x, mi, as.matrix(datenl[(1:mi),mi]))
     zbar <- pzbar(z, mi, as.matrix(datenl[(1:mi),mi]))
     theta <- olsqr(y, cbind(zbar, xbar))
@@ -1236,7 +1199,7 @@ dating_partscSSR <- function(y, z, x, m, h, thtol = 1e-6, maxi = 10000){
     while ((length > thtol) & (i <=maxi)){  # May be useful to writ write this in C++ if it takes many iterations
       nlsc_out  <- dating_purescSSR(y - x%*%beta1, z, mi, h)
       datenl    <- nlsc_out$datevec
-      date_mat  <- nlsc_out$datemat
+      bigvec  <- nlsc_out$bigvec
       
       zbar      <- pzbar(z, mi, as.matrix(datenl[(1:mi),mi]))
       theta1    <- olsqr(y,cbind(zbar,x))
@@ -1257,9 +1220,8 @@ dating_partscSSR <- function(y, z, x, m, h, thtol = 1e-6, maxi = 10000){
       msg   <- 'converged'
     }
   }
-  return(list(glob = glb, datevec = datevec, date_mat = date_mat, convergence_msg = msg))
+  return(list(glob = glb, datevec = datevec, bigvec = bigvec, convergence_msg = msg))
 }
-
 
 #' @title Compute global break dates using log-likelihood 
 #' 
@@ -1277,13 +1239,13 @@ dating_loglik <- function(bigvec,h,m,bigt){
   
   if (m==1){
     dating_out <- parti_loglik(1,h,bigt-h,bigt,bigvec,bigt)
-    datevec[1,1]    <- dating_out[1,2]
-    glob[1,1]       <- dating_out[1,1]
+    datevec[1,1]    <- dating_out$dx
+    glob[1,1]       <- dating_out$lrmax
   }else{
     for (j1 in (2*h):bigt){
       dating_out    <-  parti_loglik(1,h,j1-h,j1,as.matrix(bigvec[1:(2*bigt),]),bigt)    
-      optlr[j1,1]   <- dating_out[1,1]
-      optdat[j1,1]  <- dating_out[1,2]
+      optlr[j1,1]   <- dating_out$lrmax
+      optdat[j1,1]  <- dating_out$dx
     }                                                                      
     glob[1,1]       <- optlr[bigt,1]
     datevec[1,1]    <- optdat[bigt,1]
@@ -1334,14 +1296,14 @@ dating_MLE <- function(y,z,q,x,p,h,m,bigt){
   bigvec  <- mlebigvec(y, z, q, x, p, h, bigt)
   # ----- up to here
   if (m == 1){
-    parti_out <- parti_og(1,h,bigt-h,bigt,bigvec,bigt)
-    datevec[1,1]  <- parti_out[1,2]
-    glob[1,1]     <- parti_out[1,1]
+    parti_out <- parti(1,h,bigt-h,bigt,bigvec,bigt)
+    datevec[1,1]  <- parti_out$dx 
+    glob[1,1]     <- parti_out$ssrmin
   }else{
     for (j1 in (2*h):bigt){
-      parti_out <- parti_og(1,h,j1-h,j1,bigvec,bigt)           
-      optmle[j1,1]  <- parti_out[1,1]  
-      optdat[j1,1]  <- parti_out[1,2]  
+      parti_out <- parti(1,h,j1-h,j1,bigvec,bigt)           
+      optmle[j1,1]  <- parti_out$ssrmin
+      optdat[j1,1]  <- parti_out$dx 
     }
     glob[1,1]      <- optmle[bigt,1]
     datevec[1,1]   <- optdat[bigt,1]
