@@ -169,3 +169,80 @@ arma::vec mlebigvec(arma::vec y, arma::mat z, int q, arma::mat x, int p, int h, 
   return(bigvec);
 }
 
+
+
+
+//' @title optimal break partitions for a given segment
+//' 
+//' @description procedure to obtain an optimal one break partitions for a segment that 
+//' starts at date start and ends at date last. It returns the optimal break and the 
+//' associated SSR.
+//' 
+//' @param start: beginning of the segment considered
+//' @param b1: first possible break date
+//' @param b2: last possible break date
+//' @param last: end of segment considered
+//' 
+//' @details Note: This code is translated from MATLABS code written by Yohei 
+//' Yamamoto and Pierre Perron. Original codes can be found on 
+//' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+//' 
+//' @references Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
+//' @references Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
+//' 
+//' @export
+// [[Rcpp::export]]
+List parti(int start, int b1, int b2, int last, arma::vec bigvec, int bigt){
+  arma::vec dvec(bigt, arma::fill::zeros);
+  int ini = (start-1)*bigt-(start-2)*(start-1)/2+1;
+  int jj;
+  int k;
+  for (int j = b1; j<=b2; j++){
+    jj = j-start;
+    k = j*bigt-(j-1)*j/2+last-j;
+    dvec(j-1) = bigvec((ini+jj)-1) + bigvec(k-1);
+  }
+  double ssrmin = min(dvec.rows(b1-1,b2-1));
+  int minindcdvec = dvec.rows(b1-1,b2-1).index_min();
+  int dx = (b1-1) + minindcdvec + 1;
+  List output;
+  output["ssrmin"] = ssrmin;
+  output["dx"] = dx;
+  return(output);
+}
+
+//' @title optimal break partitions for a given segment using log-likelihood
+//' 
+//' @description procedure to obtain an optimal one break partitions for a segment that 
+//' starts at date start and ends at date last. It returns the optimal break and the 
+//' associated log-likelihood (parti2() in original MATLAB code)
+//' 
+//' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+//' 
+//' @export
+// [[Rcpp::export]]
+List parti_loglik(int start, int b1, int b2, int last, arma::vec bigvec, int bigt){
+  double pi = arma::datum::pi;
+  arma::vec dvec(bigt, arma::fill::zeros);
+  double llr1;
+  double llr2;
+  for (int j = b1; j<=b2; j ++){
+    llr1 = -0.5*(j-start+1)*((log(2*pi)+1)+log(sum(bigvec.rows(start-1,j-1))/(j-start+1)));
+    llr2 = -0.5*(last-j)*((log(2*pi)+1)+log(sum(bigvec.rows((1*bigt+j+1)-1,(1*bigt+last)-1))/(last-j)));
+    dvec(j-1) = llr1 + llr2;
+  }
+  double lrmax = max(dvec.rows(b1-1,b2-1));
+  int maxindcdvec = dvec.rows(b1-1,b2-1).index_max();
+  int dx = (b1-1) + maxindcdvec + 1; 
+  List output;
+  output["lrmax"] = lrmax;
+  output["dx"] = dx;
+  return(output);
+}
+
+
+
+
+
+
+

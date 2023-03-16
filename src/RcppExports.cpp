@@ -74,12 +74,46 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// parti
+List parti(int start, int b1, int b2, int last, arma::vec bigvec, int bigt);
+RcppExport SEXP _mbreaks_parti(SEXP startSEXP, SEXP b1SEXP, SEXP b2SEXP, SEXP lastSEXP, SEXP bigvecSEXP, SEXP bigtSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type start(startSEXP);
+    Rcpp::traits::input_parameter< int >::type b1(b1SEXP);
+    Rcpp::traits::input_parameter< int >::type b2(b2SEXP);
+    Rcpp::traits::input_parameter< int >::type last(lastSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type bigvec(bigvecSEXP);
+    Rcpp::traits::input_parameter< int >::type bigt(bigtSEXP);
+    rcpp_result_gen = Rcpp::wrap(parti(start, b1, b2, last, bigvec, bigt));
+    return rcpp_result_gen;
+END_RCPP
+}
+// parti_loglik
+List parti_loglik(int start, int b1, int b2, int last, arma::vec bigvec, int bigt);
+RcppExport SEXP _mbreaks_parti_loglik(SEXP startSEXP, SEXP b1SEXP, SEXP b2SEXP, SEXP lastSEXP, SEXP bigvecSEXP, SEXP bigtSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type start(startSEXP);
+    Rcpp::traits::input_parameter< int >::type b1(b1SEXP);
+    Rcpp::traits::input_parameter< int >::type b2(b2SEXP);
+    Rcpp::traits::input_parameter< int >::type last(lastSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type bigvec(bigvecSEXP);
+    Rcpp::traits::input_parameter< int >::type bigt(bigtSEXP);
+    rcpp_result_gen = Rcpp::wrap(parti_loglik(start, b1, b2, last, bigvec, bigt));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_mbreaks_ssr_vec", (DL_FUNC) &_mbreaks_ssr_vec, 5},
     {"_mbreaks_ssrbigvec", (DL_FUNC) &_mbreaks_ssrbigvec, 3},
     {"_mbreaks_mlef", (DL_FUNC) &_mbreaks_mlef, 8},
     {"_mbreaks_mlebigvec", (DL_FUNC) &_mbreaks_mlebigvec, 7},
+    {"_mbreaks_parti", (DL_FUNC) &_mbreaks_parti, 6},
+    {"_mbreaks_parti_loglik", (DL_FUNC) &_mbreaks_parti_loglik, 6},
     {NULL, NULL, 0}
 };
 

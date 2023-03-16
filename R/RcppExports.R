@@ -46,3 +46,39 @@ mlebigvec <- function(y, z, q, x, p, h, bigt) {
     .Call(`_mbreaks_mlebigvec`, y, z, q, x, p, h, bigt)
 }
 
+#' @title optimal break partitions for a given segment
+#' 
+#' @description procedure to obtain an optimal one break partitions for a segment that 
+#' starts at date start and ends at date last. It returns the optimal break and the 
+#' associated SSR.
+#' 
+#' @param start: beginning of the segment considered
+#' @param b1: first possible break date
+#' @param b2: last possible break date
+#' @param last: end of segment considered
+#' 
+#' @details Note: This code is translated from MATLABS code written by Yohei 
+#' Yamamoto and Pierre Perron. Original codes can be found on 
+#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' 
+#' @references Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
+#' @references Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
+#' 
+#' @export
+parti <- function(start, b1, b2, last, bigvec, bigt) {
+    .Call(`_mbreaks_parti`, start, b1, b2, last, bigvec, bigt)
+}
+
+#' @title optimal break partitions for a given segment using log-likelihood
+#' 
+#' @description procedure to obtain an optimal one break partitions for a segment that 
+#' starts at date start and ends at date last. It returns the optimal break and the 
+#' associated log-likelihood (parti2() in original MATLAB code)
+#' 
+#' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+#' 
+#' @export
+parti_loglik <- function(start, b1, b2, last, bigvec, bigt) {
+    .Call(`_mbreaks_parti_loglik`, start, b1, b2, last, bigvec, bigt)
+}
+

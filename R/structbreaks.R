@@ -181,65 +181,6 @@ maxindc <- function(A){
   return(c)
 }
 
-#' @title optimal break partitions for a given segment
-#' 
-#' @description procedure to obtain an optimal one break partitions for a segment that 
-#' starts at date start and ends at date last. It returns the optimal break and the 
-#' associated SSR.
-#' 
-#' @details Note: This code is translated from MATLABS code written by Yohei 
-#' Yamamoto and Pierre Perron. Original codes can be found on 
-#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
-#' 
-#' @references Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
-#' @references Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
-#' 
-#' @export
-parti <- function(start,b1,b2,last,bigvec,bigt){
-  # procedure to obtain an optimal one break partitions for a segment that
-  # starts at date start and ends at date last. It returns the optimal break
-  # and the associated SSR.
-  
-  # start: beginning of the segment considered
-  # b1: first possible break date
-  # b2: last possible break date
-  # last: end of segment considered
-  # date_mat: matrix with SSR (see sc_date_mat)
-  
-  dvec <- matrix(0, bigt, 1) 
-  ini <- (start-1)*bigt-(start-2)*(start-1)/2+1
-  for (j in b1:b2){
-    jj <- j-start
-    k <- j*bigt-(j-1)*j/2+last-j
-    dvec[j,1] <- bigvec[(ini+jj),1] + bigvec[k,1]
-  }
-  ssrmin <- t(min(dvec[b1:b2,1]))
-  minindcdvec <- which.min(dvec[b1:b2,1])
-  dx <- (b1-1)+t(minindcdvec)
-  return(list(ssrmin = ssrmin, dx = dx)) 
-}
-
-#' @title optimal break partitions for a given segment using log-likelihood
-#' 
-#' @description procedure to obtain an optimal one break partitions for a segment that 
-#' starts at date start and ends at date last. It returns the optimal break and the 
-#' associated log-likelihood (parti2() in original MATLAB code)
-#' 
-#' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
-#' 
-#' @export
-parti_loglik <- function(start,b1,b2,last,bigvec,bigt){
-  dvec <- matrix(0, bigt, 1)
-  for (j in b1:b2){
-    llr1 <- -0.5*(j-start+1)*((log(2*pi)+1)+log(sum(bigvec[start:j,])/(j-start+1)))
-    llr2 <- -0.5*(last-j)*((log(2*pi)+1)+log(sum(bigvec[(1*bigt+j+1):(1*bigt+last),])/(last-j)))
-    dvec[j,1] <- llr1 + llr2
-  }
-  lrmax <- max(dvec[b1:b2,1])
-  dx <- (b1-1) + maxindc(as.matrix(dvec[b1:b2,1]))
-  return(list(lrmax = lrmax, dx = dx)) 
-}
-
 
 #' @title Covariance matrix of estimates delta.
 #' 
@@ -1133,7 +1074,7 @@ dating_purescSSR <- function(y, z, m, h){
       if (ib==m){
         jlast <- bigT
         for (jb in (ib*h):(jlast-h)){
-          dvec[jb,1] <- optssr[jb,(ib-1)] + date_mat[jb+1,jlast]
+          dvec[jb,1] <- optssr[jb,(ib-1)] + bigvec[(jb+1)*bigT-jb*(jb+1)/2,1]
         }
         optssr[jlast,ib] <- t(min(dvec[(ib*h):(jlast-h),1]))
         minindcdvec <-  which.min(dvec[(ib*h):(jlast-h),1])
@@ -1141,7 +1082,7 @@ dating_purescSSR <- function(y, z, m, h){
       }else{
         for (jlast in ((ib+1)*h):bigT){
           for (jb  in (ib*h):(jlast-h)){
-            dvec[jb,1] <- optssr[jb,(ib-1)] + date_mat[jb+1, jlast]
+            dvec[jb,1] <- optssr[jb,(ib-1)] + bigvec[jb*bigT-jb*(jb-1)/2+jlast-jb,1]
           }
           optssr[jlast,ib] <-  min(dvec[(ib*h):(jlast-h),1])
           minindcdvec <- which.min(dvec[(ib*h):(jlast-h),1])
