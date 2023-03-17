@@ -330,114 +330,125 @@ pslr3 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
   }else{
     stop("y must be a (T x 1) matrix.") 
   }
-  # ----- 1)log-likelihood function under the null
-  if (p==0){
-    reg0 <- z  
-  }else{
-    reg0 <- cbind(z,x)
-  }
-  res0    <- y - reg0%*%invpd(t(reg0)%*%reg0)$xinv%*%t(reg0)%*%y
-  bigvec  <- matrix(0, bigt*(n+1),1)
-  for (i in 1:(n+1)){
-    bigvec[((i-1)*bigt+1):(i*bigt),] <- res0^2
-  }
-  datevec <- dating_loglik(bigvec,h,n,bigt)$datevec
-  brv     <- as.matrix(datevec[,n])
-  segmake_out <- segmake(n, brv,0, n, matrix(0,n,1), matrix(1,n,1), ncol(z))
-  brv   <- segmake_out$brv
-  R     <- segmake_out$R
-  res0  <-  estimbr(y,z,q,x,p,bigt,n,brv,R,n,brv,1)$res
-  lr0   <- ploglik(res0, n, brv)$loglik
-  
-  # ----- 2) log-likelihood function under the alternative
-  brcase_tmp          <- numcase2(m,n)
-  suplrx              <- matrix(0,brcase_tmp$num,1)
-  brcdt               <- matrix(0,brcase_tmp$num,m)
-  brvdt               <- matrix(0,brcase_tmp$num,n)
-  
-  for (idx in 1:brcase_tmp$num){
-    brcase_out <- brcase_tmp$cvbrind[[idx]]
-    K <- ncol(brcase_out)
-    cbrind <- as.matrix(brcase_out[1,])
-    vbrind <- as.matrix(brcase_out[2,])
-    estdate_out <- estdate(y,z,q,x,p,K,bigt,h,m,n,cbrind,vbrind)
-    brc <-estdate_out$brc
-    brv <- estdate_out$brv
-    res1 <- estdate_out$res
-    brcdt[idx,]     <- t(brc)
-    brvdt[idx,]     <- t(brv)
-    lr1             <- ploglik(res1,n,brv)$loglik   
-    suplrx[idx,1]   <- 2*(lr1-lr0)
-  }
-  suplr   <- max(suplrx)
-  maxind  <- which.max(suplrx)
-  brcstar <- as.matrix(brcdt[maxind,])
-  brvstar <- as.matrix(brvdt[maxind,])
-  brcase_out_opt <- brcase_tmp$cvbrind[[maxind]]
-  K_opt <- ncol(brcase_out_opt)
-  cbrind_opt <- as.matrix(brcase_out_opt[1,])
-  vbrind_opt <- as.matrix(brcase_out_opt[2,])
-  estdate_out_opt <- estdate(y,z,q,x,p,K_opt,bigt,h,m,n,cbrind_opt,vbrind_opt)
-  res1 <- estdate_out_opt$res
-  if (con$robust==1){
-    zbar <- pzbar(z, m, brcstar)
+  if (n == 0){
+    # Use pslr0() i.e. Bai & Perron (1998)
+    controlc <- list(robust = con$robust,
+                     prewhit = con$prewhit,
+                     typekc = con$typek) 
+    out <- pslr0(y, m, h, z, x, controlc)
+    suplr = out$suplr
+    brcstar = out$brcstar
+    brvstar <- matrix(0,n,1)
+  }else if (n>0){
+    # ----- 1)log-likelihood function under the null
     if (p==0){
-      reg1 <- zbar  
+      reg0 <- z  
     }else{
-      reg1 <- cbind(zbar, x)
+      reg0 <- cbind(z,x)
     }
-    ibigv <- diag(bigt)
-    vseg  <- as.matrix(c(0,brvstar,bigt))
-    for (k in 1:(n+1)){
-      i <- vseg[k,] + 1
-      j <- vseg[k+1,]
-      vvar <- t(as.matrix(res1[i:j,]))%*%as.matrix(res1[i:j,])/(j-i+1) 
-      ibigv[i:j,i:j]  <- diag(j-i+1)*c(invpd(vvar)$xinv)
+    res0    <- y - reg0%*%invpd(t(reg0)%*%reg0)$xinv%*%t(reg0)%*%y
+    bigvec  <- matrix(0, bigt*(n+1),1)
+    for (i in 1:(n+1)){
+      bigvec[((i-1)*bigt+1):(i*bigt),] <- res0^2
     }
+    datevec <- dating_loglik(bigvec,h,n,bigt)$datevec
+    brv     <- as.matrix(datevec[,n])
+    segmake_out <- segmake(n, brv,0, n, matrix(0,n,1), matrix(1,n,1), ncol(z))
+    brv   <- segmake_out$brv
+    R     <- segmake_out$R
+    res0  <-  estimbr(y,z,q,x,p,bigt,n,brv,R,n,brv,1)$res
+    lr0   <- ploglik(res0, n, brv)$loglik
     
-    ys    <- ibigv^(1/2)%*%y
-    zbars <- ibigv^(1/2)%*%zbar
-    reg0s <- ibigv^(1/2)%*%reg0
-    reg1s <- ibigv^(1/2)%*%reg1
+    # ----- 2) log-likelihood function under the alternative
+    brcase_tmp          <- numcase2(m,n)
+    suplrx              <- matrix(0,brcase_tmp$num,1)
+    brcdt               <- matrix(0,brcase_tmp$num,m)
+    brvdt               <- matrix(0,brcase_tmp$num,n)
     
-    beta1s  <- invpd(t(reg1s)%*%reg1s)$xinv%*%t(reg1s)%*%ys
-    res0s   <- y - reg0%*%invpd(t(reg0s)%*%reg0s)$xinv%*%t(reg0s)%*%ys
-    res1s   <- y - reg1%*%invpd(t(reg1s)%*%reg1s)$xinv%*%t(reg1s)%*%ys
-    if (p==0){
-      vmat0 <- matrix(0,bigt,q)
-      vmat1 <- matrix(0,bigt,q)
-      for (i in 1:q){
-        vmat0[,i] <- reg0[,i]*res0s
-        vmat1[,i] <- reg0[,i]*res1s  
+    for (idx in 1:brcase_tmp$num){
+      brcase_out <- brcase_tmp$cvbrind[[idx]]
+      K <- ncol(brcase_out)
+      cbrind <- as.matrix(brcase_out[1,])
+      vbrind <- as.matrix(brcase_out[2,])
+      estdate_out <- estdate(y,z,q,x,p,K,bigt,h,m,n,cbrind,vbrind)
+      brc <-estdate_out$brc
+      brv <- estdate_out$brv
+      res1 <- estdate_out$res
+      brcdt[idx,]     <- t(brc)
+      brvdt[idx,]     <- t(brv)
+      lr1             <- ploglik(res1,n,brv)$loglik   
+      suplrx[idx,1]   <- 2*(lr1-lr0)
+    }
+    suplr   <- max(suplrx)
+    maxind  <- which.max(suplrx)
+    brcstar <- as.matrix(brcdt[maxind,])
+    brvstar <- as.matrix(brvdt[maxind,])
+    brcase_out_opt <- brcase_tmp$cvbrind[[maxind]]
+    K_opt <- ncol(brcase_out_opt)
+    cbrind_opt <- as.matrix(brcase_out_opt[1,])
+    vbrind_opt <- as.matrix(brcase_out_opt[2,])
+    estdate_out_opt <- estdate(y,z,q,x,p,K_opt,bigt,h,m,n,cbrind_opt,vbrind_opt)
+    res1 <- estdate_out_opt$res
+    if (con$robust==1){
+      zbar <- pzbar(z, m, brcstar)
+      if (p==0){
+        reg1 <- zbar  
+      }else{
+        reg1 <- cbind(zbar, x)
       }
-      hac     <- correct1(vmat0,vmat1,con$prewhit,con$typek)
-      lambda  <- plambda(brcstar,m,bigt)
-      vdel    <- bigt*invpd(t(reg1)%*%reg1)$xinv%*%kronecker(lambda,hac)%*%invpd(t(reg1)%*%reg1)$xinv
-      delta1s <- beta1s
-    }else{
-      xs    <- ibigv^(1/2)%*%x 
-      regms <- zbars - xs%*%invpd(t(xs)%*%xs)$xinv%*%t(xs)%*%zbars
-      vmat0 <- matrix(0, bigt, q*(m+1))
-      vmat1 <- matrix(0, bigt, q*(m+1))
-      for (i in 1:(q*(m+1))){
-        vmat0[,i] <- regms[,i]*res0s 
-        vmat1[,i] <- regms[,i]*res1s
+      ibigv <- diag(bigt)
+      vseg  <- as.matrix(c(0,brvstar,bigt))
+      for (k in 1:(n+1)){
+        i <- vseg[k,] + 1
+        j <- vseg[k+1,]
+        vvar <- t(as.matrix(res1[i:j,]))%*%as.matrix(res1[i:j,])/(j-i+1) 
+        ibigv[i:j,i:j]  <- diag(j-i+1)*c(invpd(vvar)$xinv)
       }
-      hac     <- correct1(vmat0,vmat1,con$prewhit,con$typek)
-      vdel    <- bigt*invpd(t(regms)%*%regms)$xinv%*%hac%*%invpd(t(regms)%*%regms)$xinv
-      delta1s <- as.matrix(beta1s[1:((m+1)*q),1])
+      
+      ys    <- ibigv^(1/2)%*%y
+      zbars <- ibigv^(1/2)%*%zbar
+      reg0s <- ibigv^(1/2)%*%reg0
+      reg1s <- ibigv^(1/2)%*%reg1
+      
+      beta1s  <- invpd(t(reg1s)%*%reg1s)$xinv%*%t(reg1s)%*%ys
+      res0s   <- y - reg0%*%invpd(t(reg0s)%*%reg0s)$xinv%*%t(reg0s)%*%ys
+      res1s   <- y - reg1%*%invpd(t(reg1s)%*%reg1s)$xinv%*%t(reg1s)%*%ys
+      if (p==0){
+        vmat0 <- matrix(0,bigt,q)
+        vmat1 <- matrix(0,bigt,q)
+        for (i in 1:q){
+          vmat0[,i] <- reg0[,i]*res0s
+          vmat1[,i] <- reg0[,i]*res1s  
+        }
+        hac     <- correct1(vmat0,vmat1,con$prewhit,con$typek)
+        lambda  <- plambda(brcstar,m,bigt)
+        vdel    <- bigt*invpd(t(reg1)%*%reg1)$xinv%*%kronecker(lambda,hac)%*%invpd(t(reg1)%*%reg1)$xinv
+        delta1s <- beta1s
+      }else{
+        xs    <- ibigv^(1/2)%*%x 
+        regms <- zbars - xs%*%invpd(t(xs)%*%xs)$xinv%*%t(xs)%*%zbars
+        vmat0 <- matrix(0, bigt, q*(m+1))
+        vmat1 <- matrix(0, bigt, q*(m+1))
+        for (i in 1:(q*(m+1))){
+          vmat0[,i] <- regms[,i]*res0s 
+          vmat1[,i] <- regms[,i]*res1s
+        }
+        hac     <- correct1(vmat0,vmat1,con$prewhit,con$typek)
+        vdel    <- bigt*invpd(t(regms)%*%regms)$xinv%*%hac%*%invpd(t(regms)%*%regms)$xinv
+        delta1s <- as.matrix(beta1s[1:((m+1)*q),1])
+      }
+      rsub <- matrix(0,m,m+1)
+      for (j in 1:m){
+        rsub[j,j]     <- -1
+        rsub[j,j+1]   <- 1
+      }
+      rmat <- kronecker(rsub,diag(q))
+      
+      fstar <- t(delta1s)%*%t(rmat)%*%invpd(rmat%*%vdel%*%t(rmat))$xinv%*%rmat%*%delta1s
+      suplr <- (bigt-(m+1)*q-p)*fstar/bigt 
     }
-    rsub <- matrix(0,m,m+1)
-    for (j in 1:m){
-      rsub[j,j]     <- -1
-      rsub[j,j+1]   <- 1
-    }
-    rmat <- kronecker(rsub,diag(q))
-    
-    fstar <- t(delta1s)%*%t(rmat)%*%invpd(rmat%*%vdel%*%t(rmat))$xinv%*%rmat%*%delta1s
-    suplr <- (bigt-(m+1)*q-p)*fstar/bigt 
-  }
-  suplr <- suplr/m
+    suplr <- suplr/m
+}
   return(list(suplr = suplr, brcstar = brcstar, brvstar = brvstar))
 }
 

@@ -82,3 +82,25 @@ parti_loglik <- function(start, b1, b2, last, bigvec, bigt) {
     .Call(`_mbreaks_parti_loglik`, start, b1, b2, last, bigvec, bigt)
 }
 
+#' @title Compute global break dates using log-likelihood 
+#' 
+#' @description This is the main procedure which calculates the break points that globally maximize the loglikelihood function. It returns optimal dates and associated log likelihood for all numbers of breaks less than or equal to m. 
+#' 
+#' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+#' 
+#' @export
+dating_loglik <- function(bigvec, h, m, bigt) {
+    .Call(`_mbreaks_dating_loglik`, bigvec, h, m, bigt)
+}
+
+#' @title Compute global break dates using log-likelihood 
+#' 
+#' @description This is the main procedure which calculates the break points that globally maximize the loglikelihood function. It returns optimal dates and associated log likelihood for all numbers of breaks less than or equal to m. 
+#' 
+#' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+#' 
+#' @export
+dating_MLE <- function(y, z, q, x, p, h, m, bigt) {
+    .Call(`_mbreaks_dating_MLE`, y, z, q, x, p, h, m, bigt)
+}
+

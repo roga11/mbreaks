@@ -241,8 +241,131 @@ List parti_loglik(int start, int b1, int b2, int last, arma::vec bigvec, int big
 }
 
 
+//' @title Compute global break dates using log-likelihood 
+//' 
+//' @description This is the main procedure which calculates the break points that globally maximize the loglikelihood function. It returns optimal dates and associated log likelihood for all numbers of breaks less than or equal to m. 
+//' 
+//' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+//' 
+//' @export
+// [[Rcpp::export]]
+List dating_loglik(arma::vec bigvec, int h, int m, int bigt){
+  double pi = arma::datum::pi;
+  arma::mat datevec(m, m, arma::fill::zeros);
+  arma::mat optdat(bigt, m, arma::fill::zeros);
+  arma::mat optlr(bigt, m, arma::fill::zeros);                    
+  arma::vec dvec(bigt, arma::fill::zeros);
+  arma::vec glob(m, arma::fill::zeros);
+  if (m==1){
+    List dating_out = parti_loglik(1,h,bigt-h,bigt,bigvec,bigt);
+    datevec(0,0)    = dating_out["dx"];
+    glob(0)         = dating_out["lrmax"];
+  }else{
+    for (int j1 = (2*h); j1<=bigt; j1++){
+      List dating_out      =  parti_loglik(1,h,j1-h,j1,bigvec.rows(0,(2*bigt)-1),bigt);
+      optlr(j1-1,0)   = dating_out["lrmax"];
+      optdat(j1-1,0)  = dating_out["dx"];
+    }                                                                      
+    datevec(0,0)  = optdat(bigt-1,0);
+    glob(0)       = optlr(bigt-1,0);
+    for (int ib = 2; ib<=m; ib++){
+      if (ib==m){
+        int jlast = bigt;
+        for (int jb = (ib*h); jb<=(jlast-h); jb++){
+          dvec(jb-1) = optlr(jb-1,ib-2) - 0.5*(bigt-jb+1)*((log(2*pi)+1)+log(sum(bigvec.rows((m*bigt+jb+1)-1,(bigt*(m+1))-1))/(bigt-jb)));
+        }
+        optlr(jlast-1,ib-1)  = max(dvec.rows((ib*h)-1,(jlast-h)-1));
+        int maxindcdev = dvec.rows((ib*h)-1,(jlast-h)-1).index_max();
+        optdat(jlast-1,ib-1) = (ib*h-1) + maxindcdev + 1;
+      }else{
+        for (int jlast = ((ib+1)*h); jlast<=bigt; jlast++){
+          for (int jb = (ib*h); jb<=(jlast-h); jb++){
+            dvec(jb-1) = optlr(jb-1,ib-2) - 0.5*(jlast-jb+1)*((log(2*pi)+1)+log(sum(bigvec.rows((ib*bigt+jb+1)-1,(ib*bigt+jlast)-1))/(jlast-jb)));
+          }
+          optlr(jlast-1,ib-1) = max(dvec.rows((ib*h)-1,(jlast-h)-1));
+          int maxindcdev = dvec.rows((ib*h)-1,(jlast-h)-1).index_max();
+          optdat(jlast-1,ib-1) = (ib*h-1) + maxindcdev + 1;
+        }
+      }
+      datevec(ib-1,ib-1) = optdat(bigt-1,ib-1);
+      for (int i = 1; i<=(ib-1); i++){
+        int xx = ib-i;
+        datevec(xx-1,ib-1) = optdat(datevec(xx,ib-1)-1, xx-1);
+      }
+      glob(ib-1) = optlr(bigt-1,ib-1);
+    }
+  }
+  // organize output 
+  List output; 
+  output["glob"] = glob;
+  output["datevec"] = datevec;
+  return(output);
+}
 
 
+
+//' @title Compute global break dates using log-likelihood 
+//' 
+//' @description This is the main procedure which calculates the break points that globally maximize the loglikelihood function. It returns optimal dates and associated log likelihood for all numbers of breaks less than or equal to m. 
+//' 
+//' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+//' 
+//' @export
+// [[Rcpp::export]]
+List dating_MLE(arma::vec y, arma::mat z, int q, arma::mat x, int p, int h, int m, int bigt){
+  arma::mat datevec(m, m, arma::fill::zeros); 
+  arma::mat optdat(bigt, m, arma::fill::zeros);
+  arma::mat optmle(bigt, m, arma::fill::zeros);     
+  arma::vec dvec(bigt, arma::fill::zeros);
+  arma::vec glob(m, arma::fill::zeros);
+  arma::vec bigvec = mlebigvec(y, z, q, x, p, h, bigt);
+  if (m == 1){
+    List parti_out = parti(1,h,bigt-h,bigt,bigvec,bigt);
+    datevec(0,0)  = parti_out["dx"];
+    glob(0)     = parti_out["ssrmin"];
+  }else{
+    for (int j1 = (2*h); j1<=bigt; j1++){
+      List parti_out = parti(1,h,j1-h,j1,bigvec,bigt);
+      optmle(j1-1,0)  = parti_out["ssrmin"];
+      optdat(j1-1,0)  = parti_out["dx"];
+    }
+    datevec(0,0)   = optdat(bigt-1,0);
+    glob(0)      = optmle(bigt-1,0);
+    for (int ib = 2; ib <=m; ib++){
+      if (ib == m){
+        int jlast = bigt;
+        for (int jb = (ib*h); jb<=(jlast-h); jb++){
+          dvec(jb-1)  = optmle(jb-1,ib-2) + bigvec(((jb+1)*bigt-jb*(jb+1)/2)-1);
+        }
+        optmle(jlast-1,ib-1)    = min(dvec.rows((ib*h)-1,(jlast-h)-1));
+        int  minindcdvec        = dvec.rows((ib*h)-1,(jlast-h)-1).index_min();
+        optdat(jlast-1,ib-1)    = (ib*h-1) + minindcdvec + 1;
+      }else{
+        for (int jlast = ((ib+1)*h); jlast<=bigt; jlast++){
+          for (int jb = (ib*h); jb<=(jlast-h); jb++){
+            dvec(jb-1)   = optmle(jb-1,ib-2) + bigvec((jb*bigt-jb*(jb-1)/2+jlast-jb)-1);
+          }
+          optmle(jlast-1,ib-1)  = min(dvec.rows((ib*h)-1,(jlast-h)-1));
+          int minindcdvec       = dvec.rows((ib*h)-1,(jlast-h)-1).index_min();
+          optdat(jlast-1,ib-1)  = (ib*h-1) + minindcdvec + 1;
+        }
+      }
+      datevec(ib-1,ib-1) = optdat(bigt-1,ib-1);
+      for (int i = 1; i<=(ib-1); i++){
+        int xx = ib-i;
+        datevec(xx-1,ib-1) = optdat(datevec(xx,ib-1)-1, xx-1);
+      }
+      glob(ib-1) = optmle(bigt-1,ib-1);
+    }
+  }
+  glob = -glob;
+  // organize output 
+  List output; 
+  output["glob"] = glob;
+  output["datevec"] = datevec;
+  output["bigvec"] = bigvec;
+  return(output);
+}
 
 
 

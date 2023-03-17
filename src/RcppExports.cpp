@@ -106,6 +106,38 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// dating_loglik
+List dating_loglik(arma::vec bigvec, int h, int m, int bigt);
+RcppExport SEXP _mbreaks_dating_loglik(SEXP bigvecSEXP, SEXP hSEXP, SEXP mSEXP, SEXP bigtSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type bigvec(bigvecSEXP);
+    Rcpp::traits::input_parameter< int >::type h(hSEXP);
+    Rcpp::traits::input_parameter< int >::type m(mSEXP);
+    Rcpp::traits::input_parameter< int >::type bigt(bigtSEXP);
+    rcpp_result_gen = Rcpp::wrap(dating_loglik(bigvec, h, m, bigt));
+    return rcpp_result_gen;
+END_RCPP
+}
+// dating_MLE
+List dating_MLE(arma::vec y, arma::mat z, int q, arma::mat x, int p, int h, int m, int bigt);
+RcppExport SEXP _mbreaks_dating_MLE(SEXP ySEXP, SEXP zSEXP, SEXP qSEXP, SEXP xSEXP, SEXP pSEXP, SEXP hSEXP, SEXP mSEXP, SEXP bigtSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type z(zSEXP);
+    Rcpp::traits::input_parameter< int >::type q(qSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type p(pSEXP);
+    Rcpp::traits::input_parameter< int >::type h(hSEXP);
+    Rcpp::traits::input_parameter< int >::type m(mSEXP);
+    Rcpp::traits::input_parameter< int >::type bigt(bigtSEXP);
+    rcpp_result_gen = Rcpp::wrap(dating_MLE(y, z, q, x, p, h, m, bigt));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_mbreaks_ssr_vec", (DL_FUNC) &_mbreaks_ssr_vec, 5},
@@ -114,6 +146,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mbreaks_mlebigvec", (DL_FUNC) &_mbreaks_mlebigvec, 7},
     {"_mbreaks_parti", (DL_FUNC) &_mbreaks_parti, 6},
     {"_mbreaks_parti_loglik", (DL_FUNC) &_mbreaks_parti_loglik, 6},
+    {"_mbreaks_dating_loglik", (DL_FUNC) &_mbreaks_dating_loglik, 4},
+    {"_mbreaks_dating_MLE", (DL_FUNC) &_mbreaks_dating_MLE, 8},
     {NULL, NULL, 0}
 };
 
