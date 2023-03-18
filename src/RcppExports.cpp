@@ -106,6 +106,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// dating_purescSSR
+List dating_purescSSR(arma::vec y, arma::mat z, int m, int h);
+RcppExport SEXP _mbreaks_dating_purescSSR(SEXP ySEXP, SEXP zSEXP, SEXP mSEXP, SEXP hSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type z(zSEXP);
+    Rcpp::traits::input_parameter< int >::type m(mSEXP);
+    Rcpp::traits::input_parameter< int >::type h(hSEXP);
+    rcpp_result_gen = Rcpp::wrap(dating_purescSSR(y, z, m, h));
+    return rcpp_result_gen;
+END_RCPP
+}
 // dating_loglik
 List dating_loglik(arma::vec bigvec, int h, int m, int bigt);
 RcppExport SEXP _mbreaks_dating_loglik(SEXP bigvecSEXP, SEXP hSEXP, SEXP mSEXP, SEXP bigtSEXP) {
@@ -146,6 +160,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mbreaks_mlebigvec", (DL_FUNC) &_mbreaks_mlebigvec, 7},
     {"_mbreaks_parti", (DL_FUNC) &_mbreaks_parti, 6},
     {"_mbreaks_parti_loglik", (DL_FUNC) &_mbreaks_parti_loglik, 6},
+    {"_mbreaks_dating_purescSSR", (DL_FUNC) &_mbreaks_dating_purescSSR, 4},
     {"_mbreaks_dating_loglik", (DL_FUNC) &_mbreaks_dating_loglik, 4},
     {"_mbreaks_dating_MLE", (DL_FUNC) &_mbreaks_dating_MLE, 8},
     {NULL, NULL, 0}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/testing.R
 \name{pslr3}
 \alias{pslr3}
-\title{Test stat for  0 vs M breaks in mean given N=n breaks in var}
+\title{Test stat for  0 vs m breaks in mean given N=n breaks in var}
 \usage{
 pslr3(y, m, n, h, z, x = matrix(0, 0, 0), control = list())
 }

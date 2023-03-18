@@ -154,20 +154,6 @@ pzbar <- function(zz, m, bb){
   return(zb)
 }
 
-#' @title Create matrix if regime dates
-#' 
-#' @export
-regim_dt <- function(bvec){
-  mr <- length(bvec) - 1
-  regime_dates <- matrix(0, mr, 2)
-  for (xr in 1:mr){
-    regime_dates[xr,1] <- bvec[xr]
-    regime_dates[xr,2] <- bvec[xr+1]
-  }
-  return(regime_dates)
-}
-
-
 #' @title Covariance matrix of estimates delta.
 #' 
 #' @description procedure that compute the covariance matrix of the estimates delta.
@@ -1012,81 +998,6 @@ bigvec_residuals <- function(y,z,b,q,m){
   }
   return(bigvec)
 }
-
-
-#' @title Compute global break dates for pure structural change model
-#' 
-#' @description This is the main procedure which calculates the break points that globally
-#'  minimizes the SSR. It returns optimal dates and associated SSR for all numbers of breaks less than or equal to m.
-#' 
-#' @details Note: This code is an adaptation of the one originally written by Yohei 
-#' Yamamoto and Pierre Perron for MATLAB. Original code files can be found on 
-#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
-#' 
-#' @param y A (\code{T x 1}) vector with endogenous variable.
-#' @param z A (\code{T x q}) matrix with explanatory variables subject to change.
-#' @param m An integer determining the number of breaks to find.
-#' @param h An integer determining the minimum length of a regime. 
-#' 
-#' @references Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
-#' @references Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
-#' 
-#' @export
-dating_purescSSR <- function(y, z, m, h){
-  # ----- Set some values
-  bigT      <- nrow(y)
-  q         <- ncol(z)
-  datevec   <- matrix(0,m,m)
-  optdat    <- matrix(0,bigT,m)
-  optssr    <- matrix(0,bigT,m)
-  glb       <- matrix(0,m,1)
-  dvec      <- matrix(0,bigT,1)
-  bigvec    <- ssrbigvec(y, z, h)
-  # Determine global optimum break dates
-  if (m==1){
-    ssrmin_datx <- parti(1, h, bigT-h, bigT, bigvec, bigT)
-    datevec[1,1] <- ssrmin_datx$dx
-    glb[1,1] <- ssrmin_datx$ssrmin
-  }else{
-    for (j1 in (2*h):bigT){
-      ssrmin_datx <- parti(1, h, j1-h, j1, bigvec, bigT)
-      optdat[j1,1] <- ssrmin_datx$dx
-      optssr[j1,1] <- ssrmin_datx$ssrmin
-    }
-    glb[1,1] <- optssr[bigT,1]
-    datevec[1,1] <- optdat[bigT,1]
-    
-    for (ib in 2:m){
-      if (ib==m){
-        jlast <- bigT
-        for (jb in (ib*h):(jlast-h)){
-          dvec[jb,1] <- optssr[jb,(ib-1)] + bigvec[(jb+1)*bigT-jb*(jb+1)/2,1]
-        }
-        optssr[jlast,ib] <- t(min(dvec[(ib*h):(jlast-h),1]))
-        minindcdvec <-  which.min(dvec[(ib*h):(jlast-h),1])
-        optdat[jlast,ib] <- (ib*h-1) + t(minindcdvec)
-      }else{
-        for (jlast in ((ib+1)*h):bigT){
-          for (jb  in (ib*h):(jlast-h)){
-            dvec[jb,1] <- optssr[jb,(ib-1)] + bigvec[jb*bigT-jb*(jb-1)/2+jlast-jb,1]
-          }
-          optssr[jlast,ib] <-  min(dvec[(ib*h):(jlast-h),1])
-          minindcdvec <- which.min(dvec[(ib*h):(jlast-h),1])
-          optdat[jlast,ib] <- (ib*h-1) + t(minindcdvec)
-        }
-      }
-      datevec[ib,ib] <- optdat[bigT,ib]
-      for (i in 1:(ib-1)){
-        xx  <- ib-i
-        datevec[xx,ib] <- optdat[datevec[(xx+1),ib],xx]  
-      }
-      glb[ib,1] <- optssr[bigT,ib]
-    }
-  }
-  return(list(glob = glb, datevec = datevec, bigvec = bigvec))
-}
-
-
 
 #' @title Compute global break dates in partial structural break model
 #' 

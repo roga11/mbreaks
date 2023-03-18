@@ -82,6 +82,28 @@ parti_loglik <- function(start, b1, b2, last, bigvec, bigt) {
     .Call(`_mbreaks_parti_loglik`, start, b1, b2, last, bigvec, bigt)
 }
 
+#' @title Compute global break dates for pure structural change model
+#' 
+#' @description This is the main procedure which calculates the break points that globally
+#'  minimizes the SSR. It returns optimal dates and associated SSR for all numbers of breaks less than or equal to m.
+#' 
+#' @details Note: This code is an adaptation of the one originally written by Yohei 
+#' Yamamoto and Pierre Perron for MATLAB. Original code files can be found on 
+#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' 
+#' @param y A (\code{T x 1}) vector with endogenous variable.
+#' @param z A (\code{T x q}) matrix with explanatory variables subject to change.
+#' @param m An integer determining the number of breaks to find.
+#' @param h An integer determining the minimum length of a regime. 
+#' 
+#' @references Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
+#' @references Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
+#' 
+#' @export
+dating_purescSSR <- function(y, z, m, h) {
+    .Call(`_mbreaks_dating_purescSSR`, y, z, m, h)
+}
+
 #' @title Compute global break dates using log-likelihood 
 #' 
 #' @description This is the main procedure which calculates the break points that globally maximize the loglikelihood function. It returns optimal dates and associated log likelihood for all numbers of breaks less than or equal to m. 

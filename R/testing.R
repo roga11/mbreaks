@@ -1,7 +1,7 @@
 
 
 
-#' @title Test stat for  0 vs M breaks in mean given N=0 breaks in var
+#' @title Test stat for  0 vs m breaks in mean given n=0 breaks in var
 #' 
 #' @description Computes the supLRT test statistic for m coefficient changes given no variance changes
 #' 
@@ -110,6 +110,9 @@ pslr0 <- function(y, m, h, z, x = matrix(0,0,0), control = list()){
   brcstar <- brc
   suplr <- suplr/m
   
+  # get critical values 
+  
+  
   return(list(suplr = suplr, brcstar = brcstar))
 }
 
@@ -118,7 +121,7 @@ pslr0 <- function(y, m, h, z, x = matrix(0,0,0), control = list()){
 
 
 
-#' @title Test stat for  0 vs N breaks in variance given M=0 breaks in mean
+#' @title Test stat for  0 vs n breaks in variance given m=0 breaks in mean
 #' 
 #' @description Computes the sup LR_1T test statistic for n variance changes given no coefficient changes
 #' 
@@ -130,8 +133,6 @@ pslr0 <- function(y, m, h, z, x = matrix(0,0,0), control = list()){
 #' 
 #' @export
 pslr1 <- function(y, n, h, z, x = matrix(0,0,0), control = list()){
-  # *** CONSIDER ADDING OPTION TO LEAVE Z AS EMPTY AS WELL 
-  # SINCE WE ONLY TEST FOR CHANGE IN VARIANCE. ***
   # ----- Set control values
   con <- list(vrobust = TRUE,
               prewhit = FALSE,
@@ -191,11 +192,15 @@ pslr1 <- function(y, n, h, z, x = matrix(0,0,0), control = list()){
   suplr   <- (2/phi)*2*(lr1-lr0)
   brvstar <- brv
   suplr   <- suplr/n
+  
+  # get critical values 
+  
+  
   return(list(suplr = suplr, brvstar = brvstar))
 }
 
 
-#' @title Test stat for  0 vs N breaks in variance given M=m breaks in mean
+#' @title Test stat for  0 vs n breaks in variance given M=m breaks in mean
 #' 
 #' @description Computes the sup LR_2T test statistic for n variance changes given m coefficient changes
 #' 
@@ -283,12 +288,16 @@ pslr2 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
   brcstar <- t(as.matrix(brcdt[maxind,]))
   brvstar <- t(as.matrix(brvdt[maxind,]))
   suplr   <- suplr/n
+  
+  # get critical values 
+  
+  
   return(list(suplr = suplr, brcstar = brcstar, brvstar = brvstar))
 }
 
 
 
-#' @title Test stat for  0 vs M breaks in mean given N=n breaks in var
+#' @title Test stat for  0 vs m breaks in mean given N=n breaks in var
 #' 
 #' @description Computes the sup LR_3T test statistic for m coefficient changes given n variance changes
 #' 
@@ -448,13 +457,17 @@ pslr3 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
       suplr <- (bigt-(m+1)*q-p)*fstar/bigt 
     }
     suplr <- suplr/m
-}
+  }
+  
+  # get critical values 
+  
+  
   return(list(suplr = suplr, brcstar = brcstar, brvstar = brvstar))
 }
 
 
 
-#' @title Test stat for  0 vs M breaks in mean and 0 vs N breaks in var
+#' @title Test stat for  0 vs m breaks in mean and 0 vs n breaks in var
 #' 
 #' @description Computes the sup LR_4T test statistic for m coefficient changes and n variance changes
 #' 
@@ -624,14 +637,310 @@ pslr4 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
   }
   suplr <- suplr/(n+m)
   
+  # get critical values 
+  
+  
   return(list(suplr = suplr, brcstar = brcstar, brvstar = brvstar))
 }
 
 
 
+#' @title Test stat for  0 vs M breaks in mean given n=0 breaks in var
+#' 
+#' @description Computes the UDmaxLRT test statistic for M coefficient changes given no variance changes
+#' 
+#' @details Note: This code is a translation of the one originally written by Pierre 
+#' Perron and Yohei Yamamoto for MATLAB. Original code files can be found on 
+#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' 
+#' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+#' 
+#' @export
+pslr00 <- function(y, M, h, z, x = matrix(0,0,0), control = list()){
+  # ----- Set control values
+  con <- list(robust = TRUE,
+              prewhit = FALSE,
+              typekc = 2)
+  # ----- Perform some checks for controls
+  nmsC <- names(con)
+  con[(namc <- names(control))] <- control
+  if (length(noNms <- namc[!namc %in% nmsC])){
+    warning("unknown names in control: ", paste(noNms,collapse=", ")) 
+  }
+  # ----- Perform checks for inputs 
+  if (is.matrix(z)){
+    q <- ncol(z)
+  }else{
+    stop("z must be a (T x q) matrix.") 
+  }
+  if (length(x)!=0){
+    if (is.matrix(x)){
+      p <- ncol(x)
+    }else{
+      stop("x must be a (T x p) matrix.") 
+    }  
+  }else{
+    p <-0
+  }
+  if (is.matrix(y)){
+    bigt <- nrow(y)
+  }else{
+    stop("y must be a (T x 1) matrix.") 
+  }
+  
+  slr0 <- matrix(0,M,1)
+  slr0_ls <- list()
+  for (m in 1:M){
+    slr0_ls[[m]] <- pslr0(y, m, h, z, x , con)
+    slr0[m,1] <- slr0_ls[[m]]$suplr
+  }
+  # compute UDmaxLR3 test stat
+  UDmaxLR0 <- max(slr0) 
+  # get critical values 
+  
+
+  return(UDmaxLR0 = UDmaxLR0, testtrace = slr0_ls) 
+}
 
 
 
+#' @title Test stat for  0 vs N breaks in variance given m=0 breaks in mean
+#' 
+#' @description Computes the UDmaxLR_1T test statistic for n variance changes given no coefficient changes
+#' 
+#' @details Note: This code is a translation of the one originally written by Pierre 
+#' Perron and Yohei Yamamoto for MATLAB. Original code files can be found on 
+#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' 
+#' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+#' 
+#' @export
+pslr5 <- function(y, N, h, z, x = matrix(0,0,0), control = list()){
+  # ----- Set control values
+  con <- list(vrobust = TRUE,
+              prewhit = FALSE,
+              typekbv = 2)
+  # ----- Perform some checks for controls
+  nmsC <- names(con)
+  con[(namc <- names(control))] <- control
+  if (length(noNms <- namc[!namc %in% nmsC])){
+    warning("unknown names in control: ", paste(noNms,collapse=", ")) 
+  }
+  # ----- Perform checks for inputs 
+  if (is.matrix(z)){
+    q <- ncol(z)
+  }else{
+    stop("z must be a (T x q) matrix.") 
+  }
+  if (length(x)!=0){
+    if (is.matrix(x)){
+      p <- ncol(x)
+    }else{
+      stop("x must be a (T x p) matrix.") 
+    }  
+  }else{
+    p <-0
+  }
+  if (is.matrix(y)){
+    bigt <- nrow(y)
+  }else{
+    stop("y must be a (T x 1) matrix.") 
+  }
+  
+  slr1 <- matrix(0,N,1)
+  slr1_ls <- list()
+  for (n in 1:N){
+    slr1_ls[[n]] <- pslr1(y, n, h, z, x, con)
+    slr1[n,1] <- slr1_ls[[n]]$suplr
+  }
+  # compute UDmaxLR3 test stat
+  UDmaxLR1 <- max(slr1) 
+  # get critical values   
+  
+  return(UDmaxLR1 = UDmaxLR1, testtrace = slr1_ls) 
+}
+
+
+
+#' @title Test stat for  0 vs N breaks in variance given M=m breaks in mean
+#' 
+#' @description Computes the UDmaxLR_2T test statistic for n variance changes given m coefficient changes
+#' 
+#' @details Note: This code is a translation of the one originally written by Pierre 
+#' Perron and Yohei Yamamoto for MATLAB. Original code files can be found on 
+#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' 
+#' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+#' 
+#' @export
+pslr6 <- function(y, m, N, h, z, x = matrix(0,0,0), control = list()){
+  # ----- Set control values
+  con <- list(vrobust = TRUE,
+              prewhit = FALSE,
+              typekbv = 2)
+  # ----- Perform some checks for controls
+  nmsC <- names(con)
+  con[(namc <- names(control))] <- control
+  if (length(noNms <- namc[!namc %in% nmsC])){
+    warning("unknown names in control: ", paste(noNms,collapse=", ")) 
+  }
+  # ----- Perform checks for inputs 
+  if (is.matrix(z)){
+    q <- ncol(z)
+  }else{
+    stop("z must be a (T x q) matrix.") 
+  }
+  if (length(x)!=0){
+    if (is.matrix(x)){
+      p <- ncol(x)
+    }else{
+      stop("x must be a (T x p) matrix.") 
+    }  
+  }else{
+    p <-0
+  }
+  if (is.matrix(y)){
+    bigt <- nrow(y)
+  }else{
+    stop("y must be a (T x 1) matrix.") 
+  }
+  
+  if (m>0){
+    slr2 <- matrix(0,N,1)
+    slr2_ls <- list()
+    for (n in 1:N){
+      slr2_ls[[n]] <- pslr2(y, m, n, h, z, x, con)
+      slr2[n,1] <- slr2_ls[[n]]$suplr
+    }
+    # compute UDmaxLR3 test stat
+    UDmaxLR2 <- max(slr2) 
+    # get critical values   
+  }else if(m==0){
+    stop("For m=0, use pslr5() test.")
+  }
+  return(UDmaxLR2 = UDmaxLR2, testtrace = slr2_ls) 
+}  
+  
+#' @title Test stat for  0 vs M breaks in mean given N=n breaks in var
+#' 
+#' @description Computes the UDmaxLR_3T test statistic for m coefficient changes given n variance changes
+#' 
+#' @details Note: This code is a translation of the one originally written by Pierre 
+#' Perron and Yohei Yamamoto for MATLAB. Original code files can be found on 
+#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' 
+#' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+#' 
+#' @export
+pslr7 <- function(y, M, n, h, z, x = matrix(0,0,0), control = list()){
+  # ----- Set control values
+  con <- list(robust = TRUE,
+              prewhit = FALSE,
+              typek = 2)
+  # ----- Perform some checks for controls
+  nmsC <- names(con)
+  con[(namc <- names(control))] <- control
+  if (length(noNms <- namc[!namc %in% nmsC])){
+    warning("unknown names in control: ", paste(noNms,collapse=", ")) 
+  }
+  # ----- Perform checks for inputs 
+  if (is.matrix(z)){
+    q <- ncol(z)
+  }else{
+    stop("z must be a (T x q) matrix.") 
+  }
+  if (length(x)!=0){
+    if (is.matrix(x)){
+      p <- ncol(x)
+    }else{
+      stop("x must be a (T x p) matrix.") 
+    }  
+  }else{
+    p <-0
+  }
+  if (is.matrix(y)){
+    bigt <- nrow(y)
+  }else{
+    stop("y must be a (T x 1) matrix.") 
+  }
+ 
+  slr3 <- matrix(0,M,1)
+  slr3_ls <- list()
+  for (m in 1:M){
+    slr3_ls[[m]] <- pslr3(y, m, n, h, z, x , con)
+    slr3[m,1] <- slr3_ls[[m]]$suplr
+  }
+  # compute UDmaxLR3 test stat
+  UDmaxLR3 <- max(slr3) 
+  # get critical values 
+  
+  
+  return(UDmaxLR3 = UDmaxLR3, testtrace = slr3_ls) 
+}
+
+
+#' @title Test stat for  0 vs M breaks in mean and 0 vs N breaks in var
+#' 
+#' @description Computes the UDmaxLR_4T test statistic for max of M coefficient changes and max of N variance changes
+#' 
+#' @details Note: This code is a translation of the one originally written by Pierre 
+#' Perron and Yohei Yamamoto for MATLAB. Original code files can be found on 
+#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' 
+#' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+#' 
+#' @export
+pslr8 <- function(y, M, N, h, z, x = matrix(0,0,0), control = list()){
+  # ----- Set control values
+  con <- list(robust = TRUE,
+              vrobust = TRUE,
+              prewhit = FALSE,
+              typekbv = 2,
+              typekbc = 2)
+  # ----- Perform some checks for controls
+  nmsC <- names(con)
+  con[(namc <- names(control))] <- control
+  if (length(noNms <- namc[!namc %in% nmsC])){
+    warning("unknown names in control: ", paste(noNms,collapse=", ")) 
+  }
+  # ----- Perform checks for inputs 
+  if (is.matrix(z)){
+    q <- ncol(z)
+  }else{
+    stop("z must be a (T x q) matrix.") 
+  }
+  if (length(x)!=0){
+    if (is.matrix(x)){
+      p <- ncol(x)
+    }else{
+      stop("x must be a (T x p) matrix.") 
+    }  
+  }else{
+    p <-0
+  }
+  if (is.matrix(y)){
+    bigt <- nrow(y)
+  }else{
+    stop("y must be a (T x 1) matrix.") 
+  }
+  slr4 <- matrix(0,M,N)
+  slr4_ls <- list()
+  count <- 1
+  for (m in 1:M){
+    for (n in 1:N){
+      slr4_ls[[count]] <- pslr4(y, m, n, h, z, x, con)
+      slr4[m,n] <- slr4_ls[[count]]$suplr
+      count <- count + 1
+    }  
+  }
+  # compute UDmaxLR4 test stat
+  UDmaxLR4 <- max(slr4) 
+  # get critical values 
+  
+  
+  return(list(UDmaxLR4 = UDmaxLR4, testtrace = slr4_ls))
+
+}
 
 #' @title Test stat for  m vs m+1 breaks in mean given n breaks in var
 #' 

@@ -240,6 +240,83 @@ List parti_loglik(int start, int b1, int b2, int last, arma::vec bigvec, int big
   return(output);
 }
 
+//' @title Compute global break dates for pure structural change model
+//' 
+//' @description This is the main procedure which calculates the break points that globally
+//'  minimizes the SSR. It returns optimal dates and associated SSR for all numbers of breaks less than or equal to m.
+//' 
+//' @details Note: This code is an adaptation of the one originally written by Yohei 
+//' Yamamoto and Pierre Perron for MATLAB. Original code files can be found on 
+//' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+//' 
+//' @param y A (\code{T x 1}) vector with endogenous variable.
+//' @param z A (\code{T x q}) matrix with explanatory variables subject to change.
+//' @param m An integer determining the number of breaks to find.
+//' @param h An integer determining the minimum length of a regime. 
+//' 
+//' @references Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
+//' @references Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
+//' 
+//' @export
+// [[Rcpp::export]]
+List dating_purescSSR(arma::vec y, arma::mat z, int m, int h){
+  // ----- Set some values
+  int bigt  = y.n_rows;
+  arma::mat datevec(m, m, arma::fill::zeros);
+  arma::mat optdat(bigt, m, arma::fill::zeros);
+  arma::mat optssr(bigt, m, arma::fill::zeros);
+  arma::vec glb(m, arma::fill::zeros);
+  arma::vec dvec(bigt, arma::fill::zeros);
+  arma::vec bigvec = ssrbigvec(y, z, h);
+  // Determine global optimum break dates
+  if (m==1){
+    List ssrmin_datx = parti(1, h, bigt-h, bigt, bigvec, bigt);
+    datevec(0,0) = ssrmin_datx["dx"];
+    glb(0) = ssrmin_datx["ssrmin"];
+  }else{
+    for (int j1 = (2*h); j1<=bigt; j1++){
+      List ssrmin_datx = parti(1, h, j1-h, j1, bigvec, bigt);
+      optdat(j1-1,0) = ssrmin_datx["dx"];
+      optssr(j1-1,0) = ssrmin_datx["ssrmin"];
+    }
+    datevec(0,0) = optdat(bigt-1,0);
+    glb(0) = optssr(bigt-1,0);
+    for (int ib = 2; ib<=m; ib++){
+      if (ib==m){
+        int jlast = bigt;
+        for (int jb = (ib*h); jb<=(jlast-h); jb++){
+          dvec(jb-1) = optssr(jb-1,ib-2) + bigvec(((jb+1)*bigt-jb*(jb+1)/2)-1);
+        }
+        optssr(jlast-1,ib-1) = min(dvec.rows((ib*h)-1,(jlast-h)-1));
+        int minindcdvec =  dvec.rows((ib*h)-1,(jlast-h)-1).index_min();
+        optdat(jlast-1,ib-1) = (ib*h-1) + minindcdvec + 1;
+      }else{
+        for (int jlast = ((ib+1)*h); jlast<=bigt; jlast++){
+          for (int jb  = (ib*h); jb<=(jlast-h); jb++){
+            dvec(jb-1) = optssr(jb-1,ib-2) + bigvec((jb*bigt-jb*(jb-1)/2+jlast-jb)-1);
+          }
+          optssr(jlast-1,ib-1) = min(dvec.rows((ib*h)-1,(jlast-h)-1));
+          int minindcdvec = dvec.rows((ib*h)-1,(jlast-h)-1).index_min();
+          optdat(jlast-1,ib-1) = (ib*h-1) + minindcdvec + 1;
+        }
+      }
+      datevec(ib-1,ib-1) = optdat(bigt-1,ib-1);
+      for (int i = 1; i<=(ib-1); i++){
+        int xx = ib-i;
+        datevec(xx-1,ib-1) = optdat(datevec(xx,ib-1)-1,xx-1);
+      }
+      glb(ib-1) = optssr(bigt-1,ib-1);
+    }
+  }
+  // organize output 
+  List output; 
+  output["glb"] = glb;
+  output["datevec"] = datevec;
+  output["bigvec"] = bigvec;
+  return(output);
+}
+
+
 
 //' @title Compute global break dates using log-likelihood 
 //' 
