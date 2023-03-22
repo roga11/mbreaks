@@ -4,7 +4,7 @@
 \alias{pslr6}
 \title{Test stat for  0 vs N breaks in variance given M=m breaks in mean}
 \usage{
-pslr6(y, m, N, h, z, x = matrix(0, 0, 0), control = list())
+pslr6(y, m, N, trm, z, x = matrix(0, 0, 0), control = list())
 }
 \description{
 Computes the UDmaxLR_2T test statistic for n variance changes given m coefficient changes

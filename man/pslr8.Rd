@@ -4,7 +4,7 @@
 \alias{pslr8}
 \title{Test stat for  0 vs M breaks in mean and 0 vs N breaks in var}
 \usage{
-pslr8(y, M, N, h, z, x = matrix(0, 0, 0), control = list())
+pslr8(y, M, N, trm, z, x = matrix(0, 0, 0), control = list())
 }
 \description{
 Computes the UDmaxLR_4T test statistic for max of M coefficient changes and max of N variance changes

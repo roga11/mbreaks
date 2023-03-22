@@ -2,7 +2,7 @@
 % Please edit documentation in R/structbreaks.R
 \name{numcase2}
 \alias{numcase2}
-\title{check Determine number of cases to check given number of breaks in mean or var}
+\title{Determine number of cases to check given number of breaks in mean or var}
 \usage{
 numcase2(m, n)
 }

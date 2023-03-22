@@ -4,7 +4,7 @@
 \alias{pslr10}
 \title{Test stat for  n vs n+1 breaks in var given m breaks in mean}
 \usage{
-pslr10(y, m, n, h, z, x = matrix(0, 0, 0), control = list())
+pslr10(y, m, n, trm, z, x = matrix(0, 0, 0), control = list())
 }
 \description{
 Computes the SeqLR_10T test statistic for n variance changes versus n + 1 variance changes given m coefficient changes

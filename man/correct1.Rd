@@ -4,7 +4,7 @@
 \alias{correct1}
 \title{Compute robust standard errors in joint test of sc (i.e., Perron et al. 2021)}
 \usage{
-correct1(vmat, vmata, prewhit, typekb)
+correct1(vmat, vmata, prewhit, typekb, kerntype)
 }
 \description{
 Compute robust standard errors in joint test of sc (i.e., Perron et al. 2021)

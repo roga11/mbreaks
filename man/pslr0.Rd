@@ -4,7 +4,7 @@
 \alias{pslr0}
 \title{Test stat for  0 vs m breaks in mean given n=0 breaks in var}
 \usage{
-pslr0(y, m, h, z, x = matrix(0, 0, 0), control = list())
+pslr0(y, m, trm, z, x = matrix(0, 0, 0), control = list())
 }
 \description{
 Computes the supLRT test statistic for m coefficient changes given no variance changes

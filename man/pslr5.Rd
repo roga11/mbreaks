@@ -4,10 +4,10 @@
 \alias{pslr5}
 \title{Test stat for  0 vs N breaks in variance given m=0 breaks in mean}
 \usage{
-pslr5(y, N, h, z, x = matrix(0, 0, 0), control = list())
+pslr5(y, N, trm, z, x = matrix(0, 0, 0), control = list())
 }
 \description{
-Computes the UDmaxLR_1T test statistic for n variance changes given no coefficient changes
+Computes the UDmaxLRT_1 test statistic for n variance changes given no coefficient changes
 }
 \details{
 Note: This code is a translation of the one originally written by Pierre 

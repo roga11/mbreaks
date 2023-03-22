@@ -4,7 +4,7 @@
 \alias{pslr00}
 \title{Test stat for  0 vs M breaks in mean given n=0 breaks in var}
 \usage{
-pslr00(y, M, h, z, x = matrix(0, 0, 0), control = list())
+pslr00(y, M, trm, z, x = matrix(0, 0, 0), control = list())
 }
 \description{
 Computes the UDmaxLRT test statistic for M coefficient changes given no variance changes

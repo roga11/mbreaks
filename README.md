@@ -30,23 +30,38 @@ x <- matrix(0,0,0)
 
 m <- 1
 n <- 1
-h <- 10
+M <- 3
+N <-2
+
+
+trm <- 0.10
+
 
 st <- proc.time()
 
-mbreaks::pslr0(y, m, h, z) 
+mbreaks::pslr0(y, m, trm, z) 
 
-mbreaks::pslr1(y, n, h, z) 
+mbreaks::pslr1(y, n, trm, z) 
 
-mbreaks::pslr2(y, m, n, h, z) 
+mbreaks::pslr2(y, m, n, trm, z) 
 
-mbreaks::pslr3(y, m, n, h, z) 
+mbreaks::pslr3(y, m, n, trm, z) 
 
-mbreaks::pslr4(y, m, n, h, z) 
+mbreaks::pslr4(y, m, n, trm, z) 
 
-mbreaks::pslr9(y, m, n, h, z) 
+mbreaks::pslr00(y, M, trm, z)
 
-mbreaks::pslr10(y, m, n, h, z) 
+mbreaks::pslr5(y, N, trm, z)
+
+mbreaks::pslr6(y, m, N, trm, z)
+
+mbreaks::pslr7(y, M, n, trm, z)
+
+mbreaks::pslr8(y, M, N, trm, z)
+
+mbreaks::pslr9(y, m, n, trm, z) 
+
+mbreaks::pslr10(y, m, n, trm, z) 
 
 end <- proc.time() - st
 print(end)

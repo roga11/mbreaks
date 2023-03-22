@@ -4,7 +4,10 @@
 \alias{pslr2}
 \title{Test stat for  0 vs n breaks in variance given M=m breaks in mean}
 \usage{
-pslr2(y, m, n, h, z, x = matrix(0, 0, 0), control = list())
+pslr2(y, m, n, trm, z, x = matrix(0, 0, 0), control = list())
+}
+\value{
+suplr - corrected test statistic (see eq. 9 of PYZ 2020)
 }
 \description{
 Computes the sup LR_2T test statistic for n variance changes given m coefficient changes

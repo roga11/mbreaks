@@ -4,7 +4,7 @@
 \alias{pslr4}
 \title{Test stat for  0 vs m breaks in mean and 0 vs n breaks in var}
 \usage{
-pslr4(y, m, n, h, z, x = matrix(0, 0, 0), control = list())
+pslr4(y, m, n, trm, z, x = matrix(0, 0, 0), control = list())
 }
 \description{
 Computes the sup LR_4T test statistic for m coefficient changes and n variance changes

@@ -12,11 +12,13 @@
 #' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 #' 
 #' @export
-pslr0 <- function(y, m, h, z, x = matrix(0,0,0), control = list()){
+pslr0 <- function(y, m, trm, z, x = matrix(0,0,0), control = list()){
   # ----- Set control values
   con <- list(robust = TRUE,
               prewhit = FALSE,
-              typekc = 2)
+              typekc = 2,
+              kerntype = "quadratic",
+              alpha = NULL)
   # ----- Perform some checks for controls
   nmsC <- names(con)
   con[(namc <- names(control))] <- control
@@ -43,6 +45,8 @@ pslr0 <- function(y, m, h, z, x = matrix(0,0,0), control = list()){
   }else{
     stop("y must be a (T x 1) matrix.") 
   }
+  # ----- Obtain h from trm
+  h <- round(trm*bigt)
   # ----- 1) log-likelihood function under the null
   if (p==0){
     reg0 <- z
@@ -80,7 +84,7 @@ pslr0 <- function(y, m, h, z, x = matrix(0,0,0), control = list()){
         vmat0[, i] <- reg0[, i]*res0
         vmat1[, i] <- reg0[, i]*res1
       }
-      hac              <- correct1(vmat0, vmat1, con$prewhit, con$typekc)
+      hac              <- correct1(vmat0, vmat1, con$prewhit, con$typekc,con$kerntype)
       lambda           <- plambda(brc, m, bigt)
       vdel             <- bigt*invpd(t(reg1)%*%reg1)$xinv%*%kronecker(lambda,hac)%*%invpd(t(reg1)%*%reg1)$xinv
       delta1           <- beta1
@@ -92,7 +96,7 @@ pslr0 <- function(y, m, h, z, x = matrix(0,0,0), control = list()){
         vmat0[,i] <- regm[,i]*res0
         vmat1[,i] <- regm[,i]*res1
       }
-      hac              <- correct1(vmat0, vmat1, con$prewhit, con$typekc)
+      hac              <- correct1(vmat0, vmat1, con$prewhit, con$typekc,con$kerntype)
       vdel             <- bigt*invpd(t(regm)%*%regm)$xinv%*%hac%*%invpd(t(regm)%*%regm)$xinv
       delta1           <- beta1[1:((m+1)*q),1]
     }
@@ -108,12 +112,22 @@ pslr0 <- function(y, m, h, z, x = matrix(0,0,0), control = list()){
   }
   
   brcstar <- brc
-  suplr <- suplr/m
+  suplr <- as.matrix(suplr/m)
   
+  colnames(suplr) <- "supLRT_0"
   # get critical values 
-  
-  
-  return(list(suplr = suplr, brcstar = brcstar))
+  if (is.null(con$alpha)==FALSE){
+    cv <- as.matrix(getcv(con$alpha,q,m,trm)$cvL)
+    colnames(cv) <- paste0((1-con$alpha)*100,"%")
+  }else{
+    cv <- t(as.matrix(c(getcv(0.1,q,m,trm)$cvL,getcv(0.05,q,m,trm)$cvL, 
+                        getcv(0.025,q,m,trm)$cvL, getcv(0.01,q,m,trm)$cvL)))
+    colnames(cv) <- c("90%","95%","97.5%","99%")
+  }
+  # ----- Organize output
+  pslr0_out <- list(suplr = suplr, brcstar = brcstar, cv = cv)
+  class(pslr0_out) <- "test"
+  return(pslr0_out)
 }
 
 
@@ -129,14 +143,18 @@ pslr0 <- function(y, m, h, z, x = matrix(0,0,0), control = list()){
 #' Perron and Yohei Yamamoto for MATLAB. Original code files can be found on 
 #' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
 #' 
+#' @return suplr - corrected test statistic (see eq. 9 of PYZ 2020)
+#' 
 #' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 #' 
 #' @export
-pslr1 <- function(y, n, h, z, x = matrix(0,0,0), control = list()){
+pslr1 <- function(y, n, trm, z, x = matrix(0,0,0), control = list()){
   # ----- Set control values
   con <- list(vrobust = TRUE,
               prewhit = FALSE,
-              typekbv = 2)
+              typekbv = 2,
+              kerntype = "quadratic",
+              alpha = NULL)
   # ----- Perform some checks for controls
   nmsC <- names(con)
   con[(namc <- names(control))] <- control
@@ -163,6 +181,8 @@ pslr1 <- function(y, n, h, z, x = matrix(0,0,0), control = list()){
   }else{
     stop("y must be a (T x 1) matrix.") 
   }
+  # ----- Obtain h from trm
+  h <- round(trm*bigt)
   # ----- 1) log-likelihood function under the null
   if (p==0){
     reg0 <- z
@@ -186,17 +206,27 @@ pslr1 <- function(y, n, h, z, x = matrix(0,0,0), control = list()){
   if (con$vrobust==0){
     phi <- (t(tao0)%*%tao0)/(bigt-1)
   }else if (con$vrobust==1){
-    phi <- correct1(tao0,plog_out$tao,con$prewhit,con$typekbv) 
+    phi <- correct1(tao0,plog_out$tao,con$prewhit,con$typekbv,con$kerntype) 
   }
   lr1 <- plog_out$loglik
   suplr   <- (2/phi)*2*(lr1-lr0)
   brvstar <- brv
-  suplr   <- suplr/n
+  suplr   <- as.matrix(suplr/n)
   
+  colnames(suplr) <- "supLRT_1"
   # get critical values 
-  
-  
-  return(list(suplr = suplr, brvstar = brvstar))
+  if (is.null(con$alpha)==FALSE){
+    cv <- as.matrix(getcv(con$alpha,1,n,trm)$cvL)
+    colnames(cv) <- paste0((1-con$alpha)*100,"%")
+  }else{
+    cv <- t(as.matrix(c(getcv(0.1,1,n,trm)$cvL,getcv(0.05,1,n,trm)$cvL, 
+                        getcv(0.025,1,n,trm)$cvL, getcv(0.01,1,n,trm)$cvL)))
+    colnames(cv) <- c("90%","95%","97.5%","99%")
+  }
+  # ----- Organize output
+  pslr1_out <- list(suplr = suplr, brvstar = brvstar, cv = cv)
+  class(pslr1_out) <- "test"
+  return(pslr1_out)
 }
 
 
@@ -208,14 +238,18 @@ pslr1 <- function(y, n, h, z, x = matrix(0,0,0), control = list()){
 #' Perron and Yohei Yamamoto for MATLAB. Original code files can be found on 
 #' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
 #' 
+#' @return suplr - corrected test statistic (see eq. 9 of PYZ 2020)
+#' 
 #' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 #' 
 #' @export
-pslr2 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
+pslr2 <- function(y, m, n, trm, z, x = matrix(0,0,0), control = list()){
   # ----- Set control values
   con <- list(vrobust = TRUE,
               prewhit = FALSE,
-              typekbv = 2)
+              typekbv = 2,
+              kerntype = "quadratic",
+              alpha = NULL)
   # ----- Perform some checks for controls
   nmsC <- names(con)
   con[(namc <- names(control))] <- control
@@ -242,14 +276,16 @@ pslr2 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
   }else{
     stop("y must be a (T x 1) matrix.") 
   }
+  # ----- Obtain h from trm
+  h <- round(trm*bigt)
   # ----- 1) log-likelihood function under the null
   if (p==0){
-    datevec <- dating_purescSSR(y, z, m, h)$datevec # need to add controls
+    datevec <- dating_purescSSR(y, z, m, h)$datevec 
     brc     <- as.matrix(datevec[,m])
     zbar    <- pzbar(z, m, brc)
     reg0    <- zbar
   }else{
-    datevec <- dating_partscSSR(y, z, x, m, h)$datevec # need to add controls
+    datevec <- dating_partscSSR(y, z, x, m, h)$datevec 
     brc     <- as.matrix(datevec[,m])
     zbar    <- pzbar(z, m, brc)
     reg0    <- cbind(zbar, x)
@@ -278,7 +314,7 @@ pslr2 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
     if (con$vrobust==0){
       phi <- t(tao0)%*%tao0/(bigt-1)
     }else if (con$vrobust==1){
-      phi <- correct1(tao0, plog_out$tao, con$prewhit, con$typekbv)
+      phi <- correct1(tao0, plog_out$tao, con$prewhit, con$typekbv,con$kerntype)
     }
     lr1 <- plog_out$loglik
     suplrx[idx,1] <- (2/phi)*2*(lr1-lr0)
@@ -287,12 +323,22 @@ pslr2 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
   maxind  <- which.max(suplrx)
   brcstar <- t(as.matrix(brcdt[maxind,]))
   brvstar <- t(as.matrix(brvdt[maxind,]))
-  suplr   <- suplr/n
+  suplr   <- as.matrix(suplr/n)
   
+  colnames(suplr) <- "supLRT_2"
   # get critical values 
-  
-  
-  return(list(suplr = suplr, brcstar = brcstar, brvstar = brvstar))
+  if (is.null(con$alpha)==FALSE){
+    cv <- as.matrix(getcv(con$alpha,1,n,trm)$cvL)
+    colnames(cv) <- paste0((1-con$alpha)*100,"%")
+  }else{
+    cv <- t(as.matrix(c(getcv(0.1,1,n,trm)$cvL,getcv(0.05,1,n,trm)$cvL, 
+                        getcv(0.025,1,n,trm)$cvL, getcv(0.01,1,n,trm)$cvL)))
+    colnames(cv) <- c("90%","95%","97.5%","99%")
+  }
+  # ----- Organize output
+  pslr2_out <- list(suplr = suplr, brcstar = brcstar, brvstar = brvstar, cv = cv)
+  class(pslr2_out) <- "test"
+  return(pslr2_out)
 }
 
 
@@ -308,11 +354,13 @@ pslr2 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
 #' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 #' 
 #' @export
-pslr3 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
+pslr3 <- function(y, m, n, trm, z, x = matrix(0,0,0), control = list()){
   # ----- Set control values
   con <- list(robust = TRUE,
               prewhit = FALSE,
-              typek = 2)
+              typek = 2,
+              kerntype = "quadratic",
+              alpha = NULL)
   # ----- Perform some checks for controls
   nmsC <- names(con)
   con[(namc <- names(control))] <- control
@@ -344,11 +392,13 @@ pslr3 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
     controlc <- list(robust = con$robust,
                      prewhit = con$prewhit,
                      typekc = con$typek) 
-    out <- pslr0(y, m, h, z, x, controlc)
-    suplr = out$suplr
-    brcstar = out$brcstar
+    out <- pslr0(y, m, trm, z, x, controlc)
+    suplr <- as.matrix(out$suplr)
+    brcstar <- out$brcstar
     brvstar <- matrix(0,n,1)
   }else if (n>0){
+    # ----- Obtain h from trm
+    h <- round(trm*bigt)
     # ----- 1)log-likelihood function under the null
     if (p==0){
       reg0 <- z  
@@ -429,7 +479,7 @@ pslr3 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
           vmat0[,i] <- reg0[,i]*res0s
           vmat1[,i] <- reg0[,i]*res1s  
         }
-        hac     <- correct1(vmat0,vmat1,con$prewhit,con$typek)
+        hac     <- correct1(vmat0,vmat1,con$prewhit,con$typek,con$kerntype)
         lambda  <- plambda(brcstar,m,bigt)
         vdel    <- bigt*invpd(t(reg1)%*%reg1)$xinv%*%kronecker(lambda,hac)%*%invpd(t(reg1)%*%reg1)$xinv
         delta1s <- beta1s
@@ -442,7 +492,7 @@ pslr3 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
           vmat0[,i] <- regms[,i]*res0s 
           vmat1[,i] <- regms[,i]*res1s
         }
-        hac     <- correct1(vmat0,vmat1,con$prewhit,con$typek)
+        hac     <- correct1(vmat0,vmat1,con$prewhit,con$typek,con$kerntype)
         vdel    <- bigt*invpd(t(regms)%*%regms)$xinv%*%hac%*%invpd(t(regms)%*%regms)$xinv
         delta1s <- as.matrix(beta1s[1:((m+1)*q),1])
       }
@@ -456,13 +506,23 @@ pslr3 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
       fstar <- t(delta1s)%*%t(rmat)%*%invpd(rmat%*%vdel%*%t(rmat))$xinv%*%rmat%*%delta1s
       suplr <- (bigt-(m+1)*q-p)*fstar/bigt 
     }
-    suplr <- suplr/m
+    suplr <- as.matrix(suplr/m)
   }
   
+  colnames(suplr) <- "supLRT_3"
   # get critical values 
-  
-  
-  return(list(suplr = suplr, brcstar = brcstar, brvstar = brvstar))
+  if (is.null(con$alpha)==FALSE){
+    cv <- as.matrix(getcv(con$alpha,q,m,trm)$cvL)
+    colnames(cv) <- paste0((1-con$alpha)*100,"%")
+  }else{
+    cv <- t(as.matrix(c(getcv(0.1,q,m,trm)$cvL,getcv(0.05,q,m,trm)$cvL, 
+                        getcv(0.025,q,m,trm)$cvL, getcv(0.01,q,m,trm)$cvL)))
+    colnames(cv) <- c("90%","95%","97.5%","99%")
+  }
+  # ----- Organize output
+  pslr3_out <- list(suplr = suplr, brcstar = brcstar, brvstar = brvstar, cv = cv)
+  class(pslr3_out) <- "test"
+  return(pslr3_out)
 }
 
 
@@ -478,13 +538,15 @@ pslr3 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
 #' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 #' 
 #' @export
-pslr4 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
+pslr4 <- function(y, m, n, trm, z, x = matrix(0,0,0), control = list()){
   # ----- Set control values
   con <- list(robust = TRUE,
               vrobust = TRUE,
               prewhit = FALSE,
               typekbv = 2,
-              typekbc = 2)
+              typekbc = 2,
+              kerntype = "quadratic",
+              alpha = NULL)
   # ----- Perform some checks for controls
   nmsC <- names(con)
   con[(namc <- names(control))] <- control
@@ -511,9 +573,11 @@ pslr4 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
   }else{
     stop("y must be a (T x 1) matrix.") 
   }
+  # ----- Obtain h from trm
+  h <- round(trm*bigt)
   # ----- 1) log-likelihood function under the null
   if (p==0){
-    reg0 <- z; 
+    reg0 <- z
   }else{
     reg0 <- cbind(z, x)
   }
@@ -555,7 +619,7 @@ pslr4 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
     if (con$vrobust==0){
       phi         <- (t(tao0)%*%tao0)/(bigt-1)
     }else if (con$vrobust==1){
-      phi         <- correct1(tao0,tao1,con$prewhit,con$typekbv)
+      phi         <- correct1(tao0,tao1,con$prewhit,con$typekbv,con$kerntype)
     }
     
     suplrx[idx,1] <- 2*(lr1-lr0)-((phi-2)/phi)*2*(lrv1-lrv0)
@@ -605,7 +669,7 @@ pslr4 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
         vmat0[,i] <- reg0s[,i]*res0s
         vmat1[,i] <- reg0s[,i]*res1s
       }
-      hac     <- correct1(vmat0,vmat1,con$prewhit,con$typekbc)
+      hac     <- correct1(vmat0,vmat1,con$prewhit,con$typekbc,con$kerntype)
       lambda  <- plambda(brcstar,m,bigt)
       vdel    <- bigt*invpd(t(reg1s)%*%reg1s)$xinv%*%kronecker(lambda,hac)%*%invpd(t(reg1s)%*%reg1s)$xinv
       delta1s <- beta1s
@@ -618,7 +682,7 @@ pslr4 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
         vmat0[,i] <- regms[,i]*res0s
         vmat1[,i] <- regms[,i]*res1s
       }
-      hac     <- correct1(vmat0,vmat1,con$prewhit,con$typekbc)
+      hac     <- correct1(vmat0,vmat1,con$prewhit,con$typekbc,con$kerntype)
       vdel    <- bigt*invpd(t(regms)%*%regms)$xinv%*%hac%*%invpd(t(regms)%*%regms)$xinv
       delta1s <- beta1s[1:((m+1)*q),1]
     }
@@ -635,12 +699,22 @@ pslr4 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
     suplr     <- suplrcoef + suplrvar
     
   }
-  suplr <- suplr/(n+m)
+  suplr <- as.matrix(suplr/(n+m))
   
+  colnames(suplr) <- "supLRT_4"
   # get critical values 
-  
-  
-  return(list(suplr = suplr, brcstar = brcstar, brvstar = brvstar))
+  if (is.null(con$alpha)==FALSE){
+    cv <- as.matrix(getcv4(con$alpha,q,trm)[m,n])
+    colnames(cv) <- paste0((1-con$alpha)*100,"%")
+  }else{
+    cv <- t(as.matrix(c(getcv4(0.1,q,trm)[m,n],getcv4(0.05,q,trm)[m,n], 
+                        getcv4(0.025,q,trm)[m,n], getcv4(0.01,q,trm)[m,n])))
+    colnames(cv) <- c("90%","95%","97.5%","99%")
+  }
+  # ----- Organize output
+  pslr4_out <- list(suplr = suplr, brcstar = brcstar, brvstar = brvstar, cv = cv)
+  class(pslr4_out) <- "test"
+  return(pslr4_out)
 }
 
 
@@ -656,11 +730,13 @@ pslr4 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
 #' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 #' 
 #' @export
-pslr00 <- function(y, M, h, z, x = matrix(0,0,0), control = list()){
+pslr00 <- function(y, M, trm, z, x = matrix(0,0,0), control = list()){
   # ----- Set control values
   con <- list(robust = TRUE,
               prewhit = FALSE,
-              typekc = 2)
+              typekc = 2,
+              kerntype = "quadratic",
+              alpha = NULL)
   # ----- Perform some checks for controls
   nmsC <- names(con)
   con[(namc <- names(control))] <- control
@@ -691,22 +767,33 @@ pslr00 <- function(y, M, h, z, x = matrix(0,0,0), control = list()){
   slr0 <- matrix(0,M,1)
   slr0_ls <- list()
   for (m in 1:M){
-    slr0_ls[[m]] <- pslr0(y, m, h, z, x , con)
+    slr0_ls[[m]] <- pslr0(y, m, trm, z, x , con)
     slr0[m,1] <- slr0_ls[[m]]$suplr
   }
-  # compute UDmaxLR3 test stat
-  UDmaxLR0 <- max(slr0) 
-  # get critical values 
+  # compute UDmaxLRT_0 test stat
+  UDmaxLRT_0 <- as.matrix(max(slr0))
   
-
-  return(UDmaxLR0 = UDmaxLR0, testtrace = slr0_ls) 
+  colnames(UDmaxLRT_0) <- "UDmaxLRT_0"
+  # get critical values 
+  if (is.null(con$alpha)==FALSE){
+    cv <- as.matrix(getcv(con$alpha,q,1,trm)$cvUD)
+    colnames(cv) <- paste0((1-con$alpha)*100,"%")
+  }else{
+    cv <- t(as.matrix(c(getcv(0.1,q,1,trm)$cvUD,getcv(0.05,q,1,trm)$cvUD, 
+                        getcv(0.025,q,1,trm)$cvUD, getcv(0.01,q,1,trm)$cvUD)))
+    colnames(cv) <- c("90%","95%","97.5%","99%")
+  }
+  # ----- Organize output
+  pslr00_out <- list(UDmaxLRT = UDmaxLRT_0, testtrace = slr0_ls, cvUDmax = cv)
+  class(pslr00_out) <- "test"
+  return(pslr00_out)
 }
 
 
 
 #' @title Test stat for  0 vs N breaks in variance given m=0 breaks in mean
 #' 
-#' @description Computes the UDmaxLR_1T test statistic for n variance changes given no coefficient changes
+#' @description Computes the UDmaxLRT_1 test statistic for n variance changes given no coefficient changes
 #' 
 #' @details Note: This code is a translation of the one originally written by Pierre 
 #' Perron and Yohei Yamamoto for MATLAB. Original code files can be found on 
@@ -715,11 +802,13 @@ pslr00 <- function(y, M, h, z, x = matrix(0,0,0), control = list()){
 #' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 #' 
 #' @export
-pslr5 <- function(y, N, h, z, x = matrix(0,0,0), control = list()){
+pslr5 <- function(y, N, trm, z, x = matrix(0,0,0), control = list()){
   # ----- Set control values
   con <- list(vrobust = TRUE,
               prewhit = FALSE,
-              typekbv = 2)
+              typekbv = 2,
+              kerntype = "quadratic",
+              alpha = NULL)
   # ----- Perform some checks for controls
   nmsC <- names(con)
   con[(namc <- names(control))] <- control
@@ -747,17 +836,30 @@ pslr5 <- function(y, N, h, z, x = matrix(0,0,0), control = list()){
     stop("y must be a (T x 1) matrix.") 
   }
   
+  
   slr1 <- matrix(0,N,1)
   slr1_ls <- list()
   for (n in 1:N){
-    slr1_ls[[n]] <- pslr1(y, n, h, z, x, con)
+    slr1_ls[[n]] <- pslr1(y, n, trm, z, x, con)
     slr1[n,1] <- slr1_ls[[n]]$suplr
   }
-  # compute UDmaxLR3 test stat
-  UDmaxLR1 <- max(slr1) 
-  # get critical values   
+  # compute UDmaxLRT_1 test stat
+  UDmaxLRT_1 <- as.matrix(max(slr1))
   
-  return(UDmaxLR1 = UDmaxLR1, testtrace = slr1_ls) 
+  colnames(UDmaxLRT_1) <- "UDmaxLRT_1"
+  # get critical values 
+  if (is.null(con$alpha)==FALSE){
+    cv <- as.matrix(getcv(con$alpha,1,1,trm)$cvUD)
+    colnames(cv) <- paste0((1-con$alpha)*100,"%")
+  }else{
+    cv <- t(as.matrix(c(getcv(0.1,1,1,trm)$cvUD,getcv(0.05,1,1,trm)$cvUD, 
+                        getcv(0.025,1,1,trm)$cvUD, getcv(0.01,1,1,trm)$cvUD)))
+    colnames(cv) <- c("90%","95%","97.5%","99%")
+  }
+  # ----- Organize output
+  pslr5_out <- list(UDmaxLRT = UDmaxLRT_1, testtrace = slr1_ls, cvUDmax = cv)
+  class(pslr5_out) <- "test"
+  return(pslr5_out)
 }
 
 
@@ -773,11 +875,13 @@ pslr5 <- function(y, N, h, z, x = matrix(0,0,0), control = list()){
 #' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 #' 
 #' @export
-pslr6 <- function(y, m, N, h, z, x = matrix(0,0,0), control = list()){
+pslr6 <- function(y, m, N, trm, z, x = matrix(0,0,0), control = list()){
   # ----- Set control values
   con <- list(vrobust = TRUE,
               prewhit = FALSE,
-              typekbv = 2)
+              typekbv = 2,
+              kerntype = "quadratic",
+              alpha = NULL)
   # ----- Perform some checks for controls
   nmsC <- names(con)
   con[(namc <- names(control))] <- control
@@ -805,20 +909,33 @@ pslr6 <- function(y, m, N, h, z, x = matrix(0,0,0), control = list()){
     stop("y must be a (T x 1) matrix.") 
   }
   
+  
   if (m>0){
     slr2 <- matrix(0,N,1)
     slr2_ls <- list()
     for (n in 1:N){
-      slr2_ls[[n]] <- pslr2(y, m, n, h, z, x, con)
+      slr2_ls[[n]] <- pslr2(y, m, n, trm, z, x, con)
       slr2[n,1] <- slr2_ls[[n]]$suplr
     }
-    # compute UDmaxLR3 test stat
-    UDmaxLR2 <- max(slr2) 
-    # get critical values   
+    # compute UDmaxLRT_2 test stat
+    UDmaxLRT_2 <- as.matrix(max(slr2))
+    
+    colnames(UDmaxLRT_2) <- "UDmaxLRT_2"
+    if (is.null(con$alpha)==FALSE){
+      cv <- as.matrix(getcv(con$alpha,1,1,trm)$cvUD)
+      colnames(cv) <- paste0((1-con$alpha)*100,"%")
+    }else{
+      cv <- t(as.matrix(c(getcv(0.1,1,1,trm)$cvUD,getcv(0.05,1,1,trm)$cvUD, 
+                          getcv(0.025,1,1,trm)$cvUD, getcv(0.01,1,1,trm)$cvUD)))
+      colnames(cv) <- c("90%","95%","97.5%","99%")
+    }
+    # ----- Organize output
+    pslr6_out <- list(UDmaxLRT = UDmaxLRT_2, testtrace = slr2_ls, cvUDmax = cv)
+    class(pslr6_out) <- "test"
   }else if(m==0){
     stop("For m=0, use pslr5() test.")
   }
-  return(UDmaxLR2 = UDmaxLR2, testtrace = slr2_ls) 
+  return(pslr6_out)
 }  
   
 #' @title Test stat for  0 vs M breaks in mean given N=n breaks in var
@@ -832,11 +949,13 @@ pslr6 <- function(y, m, N, h, z, x = matrix(0,0,0), control = list()){
 #' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 #' 
 #' @export
-pslr7 <- function(y, M, n, h, z, x = matrix(0,0,0), control = list()){
+pslr7 <- function(y, M, n, trm, z, x = matrix(0,0,0), control = list()){
   # ----- Set control values
   con <- list(robust = TRUE,
               prewhit = FALSE,
-              typek = 2)
+              typek = 2,
+              kerntype = "quadratic",
+              alpha = NULL)
   # ----- Perform some checks for controls
   nmsC <- names(con)
   con[(namc <- names(control))] <- control
@@ -863,19 +982,30 @@ pslr7 <- function(y, M, n, h, z, x = matrix(0,0,0), control = list()){
   }else{
     stop("y must be a (T x 1) matrix.") 
   }
- 
+  
   slr3 <- matrix(0,M,1)
   slr3_ls <- list()
   for (m in 1:M){
-    slr3_ls[[m]] <- pslr3(y, m, n, h, z, x , con)
+    slr3_ls[[m]] <- pslr3(y, m, n, trm, z, x , con)
     slr3[m,1] <- slr3_ls[[m]]$suplr
   }
-  # compute UDmaxLR3 test stat
-  UDmaxLR3 <- max(slr3) 
+  # compute UDmaxLRT_3 test stat
+  UDmaxLRT_3 <- as.matrix(max(slr3))
+  
+  colnames(UDmaxLRT_3) <- "UDmaxLRT_3"
   # get critical values 
-  
-  
-  return(UDmaxLR3 = UDmaxLR3, testtrace = slr3_ls) 
+  if (is.null(con$alpha)==FALSE){
+    cv <- as.matrix(getcv(con$alpha,q,1,trm)$cvUD)
+    colnames(cv) <- paste0((1-con$alpha)*100,"%")
+  }else{
+    cv <- t(as.matrix(c(getcv(0.1,q,1,trm)$cvUD,getcv(0.05,q,1,trm)$cvUD, 
+                        getcv(0.025,q,1,trm)$cvUD, getcv(0.01,q,1,trm)$cvUD)))
+    colnames(cv) <- c("90%","95%","97.5%","99%")
+  }
+  # ----- Organize output
+  pslr7_out <- list(UDmaxLRT = UDmaxLRT_3, testtrace = slr3_ls, cvUDmax = cv)
+  class(pslr7_out) <- "test"
+  return(pslr7_out)
 }
 
 
@@ -890,13 +1020,15 @@ pslr7 <- function(y, M, n, h, z, x = matrix(0,0,0), control = list()){
 #' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 #' 
 #' @export
-pslr8 <- function(y, M, N, h, z, x = matrix(0,0,0), control = list()){
+pslr8 <- function(y, M, N, trm, z, x = matrix(0,0,0), control = list()){
   # ----- Set control values
   con <- list(robust = TRUE,
               vrobust = TRUE,
               prewhit = FALSE,
               typekbv = 2,
-              typekbc = 2)
+              typekbc = 2, 
+              kerntype = "quadratic",
+              alpha = NULL)
   # ----- Perform some checks for controls
   nmsC <- names(con)
   con[(namc <- names(control))] <- control
@@ -923,23 +1055,34 @@ pslr8 <- function(y, M, N, h, z, x = matrix(0,0,0), control = list()){
   }else{
     stop("y must be a (T x 1) matrix.") 
   }
+  
   slr4 <- matrix(0,M,N)
   slr4_ls <- list()
   count <- 1
   for (m in 1:M){
     for (n in 1:N){
-      slr4_ls[[count]] <- pslr4(y, m, n, h, z, x, con)
+      slr4_ls[[count]] <- pslr4(y, m, n, trm, z, x, con)
       slr4[m,n] <- slr4_ls[[count]]$suplr
       count <- count + 1
     }  
   }
-  # compute UDmaxLR4 test stat
-  UDmaxLR4 <- max(slr4) 
+  # compute UDmaxLRT_4 test stat
+  UDmaxLRT_4 <- as.matrix(max(slr4))
+  
+  colnames(UDmaxLRT_4) <- "UDmaxLRT_4"
   # get critical values 
-  
-  
-  return(list(UDmaxLR4 = UDmaxLR4, testtrace = slr4_ls))
-
+  if (is.null(con$alpha)==FALSE){
+    cv <- as.matrix(getdmax4(con$alpha, q, trm, M, N))
+    colnames(cv) <- paste0((1-con$alpha)*100,"%")
+  }else{
+    cv <- t(as.matrix(c(getdmax4(0.1, q, trm, M, N),getdmax4(0.05, q, trm, M, N), 
+                        getdmax4(0.025, q, trm, M, N), getdmax4(0.01, q, trm, M, N))))
+    colnames(cv) <- c("90%","95%","97.5%","99%")
+  }
+  # ----- Organize output
+  pslr8_out <- list(UDmaxLRT = UDmaxLRT_4, testtrace = slr4_ls, cvUDmax = cv)
+  class(pslr8_out) <- "test"
+  return(pslr8_out)
 }
 
 #' @title Test stat for  m vs m+1 breaks in mean given n breaks in var
@@ -953,11 +1096,13 @@ pslr8 <- function(y, M, N, h, z, x = matrix(0,0,0), control = list()){
 #' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 #' 
 #' @export
-pslr9 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
+pslr9 <- function(y, m, n, trm, z, x = matrix(0,0,0), control = list()){
   # ----- Set control values
   con <- list(robust = TRUE,
               prewhit = FALSE,
-              typek = 2)
+              typek = 2,
+              kerntype = "quadratic",
+              alpha = NULL)
   # ----- Perform some checks for controls
   nmsC <- names(con)
   con[(namc <- names(control))] <- control
@@ -987,6 +1132,8 @@ pslr9 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
   }else{
     stop("y must be a (T x 1) matrix.") 
   }
+  # ----- Obtain h from trm
+  h <- round(trm*bigt)
   # ----- 1) break date estimation under the null
   if (p==0){
     reg0 <- z
@@ -1021,7 +1168,7 @@ pslr9 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
     if (con$robust==0){
       phi <- t(tao0)%*%tao0/(bigt-1)
     }else if (con$robust==1){
-      phi <- correct1(tao0, tao1, con$prewhit, con$typek)
+      phi <- correct1(tao0, tao1, con$prewhit, con$typek,con$kerntype)
     }
     suplrx[idx,1] <- 2*(lr1-lr0)-((phi-2)/phi)*2*(lrv1-lr0)
   }
@@ -1092,9 +1239,11 @@ pslr9 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
       indbrv      <- (brv0>starti)*(brv0<endi)
       ni          <- sum(indbrv)
       brvi        <- matrix(0,0,0)
-      for (j in 1:n){
-        if (indbrv[j,1]==1){
-          brvi    <- as.matrix(c(brvi,brv0[j,1]-dv[is,1]))
+      if (n>=1){
+        for (j in 1:n){
+          if (indbrv[j,1]==1){
+            brvi    <- as.matrix(c(brvi,brv0[j,1]-dv[is,1]))
+          }
         }
       }
       segres0     <- segy - segreg%*%invpd(t(segregs)%*%segregs)$xinv%*%t(segregs)%*%segys
@@ -1138,7 +1287,7 @@ pslr9 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
             vmat0[,i] <- segreg0[,i]*segres0s
             vmat1[,i] <- segreg0[,i]*segres1s 
           }
-          hac         <- correct1(vmat0,vmat1,con$prewhit,con$typek)
+          hac         <- correct1(vmat0,vmat1,con$prewhit,con$typek,con$kerntype)
           lambda      <- plambda(brci,1,lengthi)
           vdel        <- lengthi*invpd(t(segreg1)%*%segreg1)$xinv%*%kronecker(lambda,hac)%*%invpd(t(segreg1)%*%segreg1)$xinv
           delta1s     <- beta1s
@@ -1150,7 +1299,7 @@ pslr9 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
             vmat0[,i] <- segregms[,i]*segres0s
             vmat1[,i] <- segregms[,i]*segres1s
           }
-          hac         <- correct1(vmat0,vmat1,con$prewhit,con$typek)
+          hac         <- correct1(vmat0,vmat1,con$prewhit,con$typek,con$kerntype)
           vdel        <- lengthi*invpd(t(segregms)%*%segregms)$xinv%*%hac%*%invpd(t(segregms)%*%segregms)$xinv
           delta1s     <- as.matrix(beta1s[1:(q*2),1])
         }
@@ -1161,15 +1310,29 @@ pslr9 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
         
         fstari         <- t(delta1s)%*%t(rmat)%*%invpd(rmat%*%vdel%*%t(rmat))$xinv%*%rmat%*%delta1s
         lrtest[is,1]   <- (lengthi-2*q-p)*fstari/lengthi
+        # ds[is,1]    This should be updated... missing only when robust==1...
       }
     }else{
       lrtest[is,1]    = 0
     }
-    suplr   <- max(lrtest)
+    suplr   <- as.matrix(max(lrtest))
     news    <- which.max(lrtest)
     newd    <- ds[news,1]
   }
-  return(list(suplr = suplr, newd = newd))
+  colnames(suplr) <- paste0("supSeq(",m+1,",",n,"|",m,",",n,")")
+  # get critical values 
+  if (is.null(con$alpha)==FALSE){
+    cv <- as.matrix(getcv(con$alpha,q,m,trm)$cvSeq)
+    colnames(cv) <- paste0((1-con$alpha)*100,"%")
+  }else{
+    cv <- t(as.matrix(c(getcv(0.1,q,m,trm)$cvSeq,getcv(0.05,q,m,trm)$cvSeq, 
+                        getcv(0.025,q,m,trm)$cvSeq, getcv(0.01,q,m,trm)$cvSeq)))
+    colnames(cv) <- c("90%","95%","97.5%","99%")
+  }
+  # ----- Organize output
+  pslr9_out <- list(supSeq = suplr, newd = newd, cv = cv)
+  class(pslr9_out) <- "test"
+  return(pslr9_out)
 }
 
 
@@ -1185,11 +1348,13 @@ pslr9 <- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
 #' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 #' 
 #' @export
-pslr10<- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
+pslr10<- function(y, m, n, trm, z, x = matrix(0,0,0), control = list()){
   # ----- Set control values
   con <- list(vrobust = TRUE,
               prewhit = FALSE,
-              typek = 2)
+              typek = 2,
+              kerntype = "quadratic",
+              alpha = NULL)
   # ----- Perform some checks for controls
   nmsC <- names(con)
   con[(namc <- names(control))] <- control
@@ -1219,6 +1384,8 @@ pslr10<- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
   }else{
     stop("y must be a (T x 1) matrix.") 
   }
+  # ----- Obtain h from trm
+  h <- round(trm*bigt)
   # ----- 1)break date estimation under the null
   if (p==0){
     reg0 <- z
@@ -1253,7 +1420,7 @@ pslr10<- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
     if (con$vrobust==0){
       phi <- t(tao0)%*%tao0/(bigt-1)
     }else if (con$vrobust==1){
-      phi <- correct1(tao0, tao1, con$prewhit, con$typek)
+      phi <- correct1(tao0, tao1, con$prewhit, con$typek,con$kerntype)
     }
     suplrx[idx,1] <- 2*(lr1-lr0)-((phi-2)/phi)*2*(lrv1-lr0)
   }
@@ -1324,7 +1491,7 @@ pslr10<- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
       if (con$vrobust==0){
         segphi  <- t(segtao0)%*%segtao0/(lengthi-1)
       }else if (con$vrobust==1){
-        segphi  <- correct1(segtao0,segtao1,con$prewhit,con$typek)
+        segphi  <- correct1(segtao0,segtao1,con$prewhit,con$typek,con$kerntype)
       }
       
       lrtest[is,1]  <- (2/segphi)*2*(seglr1-seglr0)
@@ -1332,11 +1499,25 @@ pslr10<- function(y, m, n, h, z, x = matrix(0,0,0), control = list()){
     }else{
       lrtest[is,1] <- 0
     }
-    suplr   <- max(lrtest)
+    suplr   <- as.matrix(max(lrtest))
     news    <- which.max(lrtest)
     newd    <- ds[news,1]
   }
-  return(list(suplr = suplr, newd = newd))
+  
+  colnames(suplr) <- paste0("supSeq(",m,",",n+1,"|",m,",",n,")")
+  # get critical values 
+  if (is.null(con$alpha)==FALSE){
+    cv <- as.matrix(getcv(con$alpha,q,n,trm)$cvSeq)
+    colnames(cv) <- paste0((1-con$alpha)*100,"%")
+  }else{
+    cv <- t(as.matrix(c(getcv(0.1,q,n,trm)$cvSeq,getcv(0.05,q,n,trm)$cvSeq, 
+                        getcv(0.025,q,n,trm)$cvSeq, getcv(0.01,q,n,trm)$cvSeq)))
+    colnames(cv) <- c("90%","95%","97.5%","99%")
+  }
+  # ----- Organize output
+  pslr10_out <- list(supSeq = suplr, newd = newd, cv = cv)
+  class(pslr10_out) <- "test"
+  return(pslr10_out)
 }
 
 

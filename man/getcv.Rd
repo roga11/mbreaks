@@ -4,7 +4,7 @@
 \alias{getcv}
 \title{Get critical values using equations from Bai Perron (2003)}
 \usage{
-getcv(alpha, q, k, eps = 0.1)
+getcv(alpha, q, k, eps)
 }
 \description{
 Get critical values using equations from Bai Perron (2003)

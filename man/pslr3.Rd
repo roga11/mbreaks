@@ -4,7 +4,7 @@
 \alias{pslr3}
 \title{Test stat for  0 vs m breaks in mean given N=n breaks in var}
 \usage{
-pslr3(y, m, n, h, z, x = matrix(0, 0, 0), control = list())
+pslr3(y, m, n, trm, z, x = matrix(0, 0, 0), control = list())
 }
 \description{
 Computes the sup LR_3T test statistic for m coefficient changes given n variance changes
