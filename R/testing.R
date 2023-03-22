@@ -1110,9 +1110,6 @@ pslr9 <- function(y, m, n, trm, z, x = matrix(0,0,0), control = list()){
     warning("unknown names in control: ", paste(noNms,collapse=", ")) 
   }
   # ----- Perform checks for inputs 
-  if (m<1){
-    stop("There must be at least one break in mean under null hypothesis (i.e. m >= 1).")
-  }
   if (is.matrix(z)){
     q <- ncol(z)
   }else{
@@ -1362,9 +1359,6 @@ pslr10<- function(y, m, n, trm, z, x = matrix(0,0,0), control = list()){
     warning("unknown names in control: ", paste(noNms,collapse=", ")) 
   }
   # ----- Perform checks for inputs 
-  if (n<1){
-    stop("There must be at least one break in variance under null hypothesis (i.e. n >= 1).")
-  }
   if (is.matrix(z)){
     q <- ncol(z)
   }else{

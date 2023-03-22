@@ -1,4 +1,157 @@
 
+#' @title Determine number of breaks & dates
+#' 
+#' @description This function determines the number of break and their dates using sequential and UDmax procedures. 
+#' 
+#' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+#' 
+#' @export
+determineBreaks <- function(y, M, N, z, x, con){
+
+  if ((M>0) & (N==0)){
+    # start with UDmax test up to M breaks
+    control_tmp9 <- list(robust = con$robust,
+                          prewhit = con$prewhit,
+                          typek = con$typekbc,
+                          kerntype = con$kerntype,
+                          alpha = con$alpha)
+    
+    control_tmp  <- list(robust = con$robust,
+                         prewhit = con$prewhit,
+                         typekc = con$typekbc,
+                         kerntype = con$kerntype,
+                         alpha = con$alpha)
+    
+    out <- pslr00(y, M, con$trm, z, x, control_tmp)
+    # check if null hypothesis is rejected
+    if (is.null(con$alpha)){
+      UDmax_null_check <- out$UDmaxLRT>out$cvUDmax[1,1]  
+    }else{
+      UDmax_null_check <- out$UDmaxLRT>=out$cvUDmax[1,((100-as.numeric(gsub("%","",colnames(out$cvUDmax))))/100)==con$alpha]  
+    }
+    # if rejected, use Sequential procedure to find m starting with m=1 under null.
+    if (UDmax_null_check){
+      mi <- 1
+      seq_null_check <- TRUE
+      while ((mi < M) & (seq_null_check)){
+        out <- pslr9(y, mi, N, con$trm, z, x, control_tmp9)
+        if (is.null(con$alpha)){
+          seq_null_check <- out$supSeq>=out$cv[1,1]
+        }else{
+          seq_null_check <- out$supSeq>=out$cv[1,((100-as.numeric(gsub("%","",colnames(out$cv))))/100)==con$alpha]  
+        }
+        if (seq_null_check){
+          mi <- mi + 1  
+        }
+      }
+      out <- pslr0(y, mi, con$trm, z, x, control_tmp)
+      brcdt <- out$brcstar # global break date
+      brvdt <- NULL
+      m <- mi
+      n <- N
+    }else{
+      stop("No breaks in coefficients found.")
+    }
+  }else if ((M==0) & (N>0)){
+    # start with UDmax test up to M breaks
+    control_tmp10 <- list(vrobust = con$vrobust,
+                          prewhit = con$prewhit,
+                          typek = con$typekbv,
+                          kerntype = con$kerntype,
+                          alpha = con$alpha)
+    control_tmp  <- list(vrobust = con$vrobust,
+                         prewhit = con$prewhit,
+                         typekbv = con$typekbv,
+                         kerntype = con$kerntype,
+                         alpha = con$alpha)
+    
+    out <- pslr5(y, N, con$trm, z, x, control_tmp)
+    # check if null hypothesis is rejected
+    if (is.null(con$alpha)){
+      UDmax_null_check <- out$UDmaxLRT>out$cvUDmax[1,1]  
+    }else{
+      UDmax_null_check <- out$UDmaxLRT>=out$cvUDmax[1,((100-as.numeric(gsub("%","",colnames(out$cvUDmax))))/100)==con$alpha]  
+    }
+    # if rejected, use Sequential procedure to find m starting with m=1 under null.
+    if (UDmax_null_check){
+      ni <- 1
+      seq_null_check <- TRUE
+      while ((ni < N) & (seq_null_check)){
+        out <- pslr10(y, M, ni, con$trm, z, x, control_tmp10)
+        if (is.null(con$alpha)){
+          seq_null_check <- out$supSeq>=out$cv[1,1]
+        }else{
+          seq_null_check <- out$supSeq>=out$cv[1,((100-as.numeric(gsub("%","",colnames(out$cv))))/100)==con$alpha]  
+        }
+        if (seq_null_check){
+          ni <- ni + 1  
+        }
+      }
+      out <- pslr1(y, ni, con$trm, z, x, control_tmp)
+      brcdt <- NULL
+      brvdt <- out$brvstar # global break date
+      m <- M
+      n <- ni
+    }else{
+      stop("No breaks in variance found.")
+    }
+  }else if ((M>0) & (N>0)){
+    control_tmp9  <- list(robust = con$robust,
+                          prewhit = con$prewhit,
+                          typek = con$typekbc,
+                          kerntype = con$kerntype,
+                          alpha = con$alpha)
+    control_tmp10 <- list(vrobust = con$vrobust,
+                          prewhit = con$prewhit,
+                          typek = con$typekbv,
+                          kerntype = con$kerntype,
+                          alpha = con$alpha)
+    control_tmp   <- list(robust = con$robust,
+                          vrobust = con$vrobust,
+                          prewhit = con$prewhit,
+                          typekbv = con$typekbv,
+                          typekbc = con$typekbc,
+                          kerntype = con$kerntype,
+                          alpha = con$alpha)
+      mi <- 0
+      seq_null_check <- TRUE
+      while ((mi < M) & (seq_null_check)){
+        out <- pslr9(y, mi, N, con$trm, z, x, control_tmp9)
+        if (is.null(con$alpha)){
+          seq_null_check <- out$supSeq>=out$cv[1,1]
+        }else{
+          seq_null_check <- out$supSeq>=out$cv[1,((100-as.numeric(gsub("%","",colnames(out$cv))))/100)==con$alpha]  
+        }
+        if (seq_null_check){
+          mi <- mi + 1  
+        }
+      }
+      ni <- 0
+      seq_null_check <- TRUE
+      while ((ni < N) & (seq_null_check)){
+        out <- pslr10(y, M, ni, con$trm, z, x, control_tmp10)
+        if (is.null(con$alpha)){
+          seq_null_check <- out$supSeq>=out$cv[1,1]
+        }else{
+          seq_null_check <- out$supSeq>=out$cv[1,((100-as.numeric(gsub("%","",colnames(out$cv))))/100)==con$alpha]  
+        }
+        if (seq_null_check){
+          ni <- ni + 1  
+        }
+      }
+      m <- mi 
+      n <- ni
+      out <- pslr4(y, m, n, con$trm, z, x, control_tmp)
+      brcdt <- out$brcstar # global break date
+      brvdt <- out$brvstar # global break date
+
+  }
+  return(list(m = m, n = n, brcdt = brcdt, brvdt = brvdt, supLRT = out$suplr, cv = out$cv))
+}
+
+
+
+
 
 #' @title Estimate model 
 #' 
@@ -73,81 +226,44 @@ estimdl <- function(y, m, n, z, x = matrix(0,0,0), control = list()){
   }
   # ----- Obtain h from trm
   h <- round(con$trm*bigt)
-  
-  if ((m>0) & (n==0)){
-    # ----- If break dates not given, find optimal number of breaks and global break dates
-    if ((is.null(con$brcdt))){
-      # treat m as M and find optimal breaks using sequential methods
-      # start with UDmax test up to M breaks
-      control_tmp <- list(robust = con$robust,
-                          prewhit = con$prewhit,
-                          typekc = con$typekbc,
-                          kerntype = con$kerntype,
-                          alpha = con$alpha)
-      out <- pslr00(y, m, con$trm, z, x, control_tmp)
-      # check if null hypothesis is rejected
-      if (is.null(con$alpha)){
-        UDmax_null_check <- out$UDmaxLRT>out$cvUDmax[1,1]  
-      }else{
-        UDmax_null_check <- out$UDmaxLRT>=out$cvUDmax[1,((100-as.numeric(gsub("%","",colnames(out$cvUDmax))))/100)==con$alpha]  
-      }
-      # if rejected, use Sequential procedure to find m starting with m=1 under null.
-      if (UDmax_null_check){
-        control_tmp <- list(robust = con$robust,
-                            prewhit = con$prewhit,
-                            typek = con$typekbc,
-                            kerntype = con$kerntype,
-                            alpha = con$alpha)
-        mi <- 1
-        seq_null_check <- TRUE
-        while ((mi <m) & (seq_null_check)){
-          out <- pslr9(y, mi, n, con$trm, z, x, control_tmp)
-          if (is.null(con$alpha)){
-            seq_null_check <- out$supSeq>=out$cv[1,1]
-          }else{
-            seq_null_check <- out$supSeq>=out$cv[1,((100-as.numeric(gsub("%","",colnames(out$cv))))/100)==con$alpha]  
-          }
-          if (seq_null_check){
-            mi <- mi + 1  
-          }
-        }
-        out <- pslr3(y, mi, n, con$trm, z, x, control_tmp)
-        con$brcdt <- out$brcstar # global break date
-        m <- mi
-      }else{
-        stop("No breaks in coefficients found.")
-      }
-    }
-    # ----- esimate model
-    estim_out <- estim(y,z,x,m,con$brcdt,con$robust,con$prewhit,con$hetomega,con$hetq,con$hetdat,con$hetvar)
+  mdlout <- list()
+  mdlout$m <- m
+  mdlout$n <- n
+  # Find break dates if not given
+  if ((is.null(con$brcdt)) & (is.null(con$brvdt))){
+    brkout <- determineBreaks(y, m, n, z, x, con)
+    con$brcdt <- brkout$brcdt
+    con$brvdt <- brkout$brvdt
+    mdlout$m <- brkout$m
+    mdlout$n <- brkout$n
+    mdlout$supLRT <- brkout$supLRT
+    mdlout$cv <- brkout$cv
+  }
+  # ----- esimate model
+  if ((is.null(con$brcdt)==FALSE) & (is.null(con$brvdt))){
+    estim_out <- estim(y,z,x,mdlout$m,con$brcdt,con$robust,con$prewhit,con$hetomega,con$hetq,con$hetdat,con$hetvar)
     beta <- estim_out$coef
     stdev <- sqrt(estim_out$sigma2)
     brc <- con$brcdt
     brv <- matrix(0,0,0)
     res <-  estim_out$resid
-  }else if ((m==0) & (n>0)){
-    # ----- If break dates not given, find optimal number of breaks and global break dates
-    if ((is.null(con$brvdt))){
-      # treat n as N and find optimal breaks using sequential method
-      
-    }
-    # ----- esimate model
-    
-  }else if ((m>0) & (n>0)){
-    # ----- If break dates not given, find optimal number of breaks and global break dates
-    if ((is.null(con$brcdt)) & (is.null(con$brvdt))){
-     # treat m as M and n as N and find optimal breaks using sequential methods
-      
-    }
-    # ----- esimate model
+  }else{
     # step 1
-    brk <- as.matrix(unique(c(con$brcdt,con$brvdt)))
-    K <- length(brk)
-    cbrind <- as.matrix(as.numeric(brk %in% con$brcdt))
-    vbrind <- as.matrix(as.numeric(brk %in% con$brvdt))
+    if ((is.null(con$brcdt)) & (is.null(con$brvdt)==FALSE)){
+      brc <- matrix(0,0,0)
+      brk <- as.matrix(sort(unique(c(brcdt,con$brvdt))))
+      K <- length(brk)
+      cbrind <- as.matrix(as.numeric(brk %in% con$brcdt))
+      vbrind <- as.matrix(as.numeric(brk %in% con$brvdt))
+    }else if ((is.null(con$brcdt)==FALSE) & (is.null(con$brvdt)==FALSE)){
+      brk <- as.matrix(sort(unique(c(con$brcdt,con$brvdt))))
+      K <- length(brk)
+      cbrind <- as.matrix(as.numeric(brk %in% con$brcdt))
+      vbrind <- as.matrix(as.numeric(brk %in% con$brvdt))
+    }
     # step 2
-    segmake_out <- segmake(K,brk,m,n,cbrind,vbrind,q)
-    estimbr_out <- estimbr(y,z,q,x,p,bigt,K,brk,segmake_out$R,n,segmake_out$brv,1)
+    segmake_out <- segmake(K,brk,mdlout$m,mdlout$n,cbrind,vbrind,q)
+    estimbr_out <- estimbr(y,z,q,x,p,bigt,K,brk,segmake_out$R,mdlout$n,segmake_out$brv,1)
     if (p>=1){
       y <- y - x%*%invpd(t(x)%*%x)$xinv%*%t(x)%*%y
       z <- z - x%*%invpd(t(x)%*%x)$xinv%*%t(x)%*%z  
@@ -162,22 +278,21 @@ estimdl <- function(y, m, n, z, x = matrix(0,0,0), control = list()){
         diff      <- -1  
       }else{
         brk         <- as.matrix(datevec[,K])
-        segmake_out <- segmake(K,brk,m,n,cbrind,vbrind,q)
-        estimbr_out <- estimbr(y,z,q,x,p,bigt,K,brk,segmake_out$R,n,segmake_out$brv,1)
+        segmake_out <- segmake(K,brk,mdlout$m,mdlout$n,cbrind,vbrind,q)
+        estimbr_out <- estimbr(y,z,q,x,p,bigt,K,brk,segmake_out$R,mdlout$n,segmake_out$brv,1)
         diff        <- diff + 1
       }
       if (diff==maxiter){
         print('cannot find the converging break dates') 
       }
     }
-    vseg  <- as.matrix(c(0,brv,bigt))
-    nvar <- matrix(0,n+1,1)
-    for (k in 1:(n+1)){
+    vseg  <- as.matrix(c(0,segmake_out$brv,bigt))
+    nvar <- matrix(0,mdlout$n+1,1)
+    for (k in 1:(mdlout$n+1)){
       i <- vseg[k,]+1
       j <- vseg[(k+1),]
       nvar[k,]  <- sqrt((t(estimbr_out$res[i:j,])%*%estimbr_out$res[i:j,])/(j-i+1))
     }
-    
     beta <- estimbr_out$nbeta
     stdev <- nvar
     brc <- segmake_out$brc
@@ -185,12 +300,18 @@ estimdl <- function(y, m, n, z, x = matrix(0,0,0), control = list()){
     res <-  estimbr_out$res
   }
   # ----- Organize output
-  mdl_out <- list(y = y, z = z, x = x, m = m, n = n, 
-                  beta = beta, stdev = stdev, 
-                  brk <- brk, brc = brc, brv = brv, 
-                  res = res,
-                  control = con)
-  # *** NOTE: CI are computed for m>0 and n==0 but left out for now after other cases do not have these ready yet. 
-  class(mdl_out) <- "mdl"
-  return()
+  mdlout$y = y 
+  mdlout$z = z 
+  mdlout$x = x
+  mdlout$beta = beta
+  mdlout$stdev = stdev
+  mdlout$brk = brk
+  mdlout$brc = brc
+  mdlout$brv = brv
+  mdlout$res = res
+  mdlout$control = con
+  # *** NOTE: CI are computed for m>0 and n==0 but left out for now after other 
+  #           cases do not have these ready yet. 
+  class(mdlout) <- "mdl"
+  return(mdlout)
 }

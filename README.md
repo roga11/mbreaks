@@ -31,7 +31,7 @@ x <- matrix(0,0,0)
 m <- 1
 n <- 1
 M <- 3
-N <-2
+N <-3
 
 
 trm <- 0.10
@@ -65,6 +65,23 @@ mbreaks::pslr10(y, m, n, trm, z)
 
 end <- proc.time() - st
 print(end)
+
+
+st <- proc.time()
+mdl_withMbreak <- estimdl(y, m=M, n=0, z, x)
+end1 <- proc.time() - st
+print(end1)
+
+st <- proc.time()
+mdl_withNbreak <- estimdl(y, m=0, n=N, z, x)
+end2 <- proc.time() - st
+print(end2)
+
+st <- proc.time()
+mdl_withMNbreak <- estimdl(y, m=M, n=N, z, x)
+end3 <- proc.time() - st
+print(end3)
+
 
 ```
 
