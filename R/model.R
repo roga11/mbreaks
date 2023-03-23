@@ -113,37 +113,37 @@ determineBreaks <- function(y, M, N, z, x, con){
                           typekbc = con$typekbc,
                           kerntype = con$kerntype,
                           alpha = con$alpha)
-      mi <- 0
-      seq_null_check <- TRUE
-      while ((mi < M) & (seq_null_check)){
-        out <- pslr9(y, mi, N, con$trm, z, x, control_tmp9)
-        if (is.null(con$alpha)){
-          seq_null_check <- out$supSeq>=out$cv[1,1]
-        }else{
-          seq_null_check <- out$supSeq>=out$cv[1,((100-as.numeric(gsub("%","",colnames(out$cv))))/100)==con$alpha]  
-        }
-        if (seq_null_check){
-          mi <- mi + 1  
-        }
+    mi <- 0
+    seq_null_check <- TRUE
+    while ((mi < M) & (seq_null_check)){
+      out <- pslr9(y, mi, N, con$trm, z, x, control_tmp9)
+      if (is.null(con$alpha)){
+        seq_null_check <- out$supSeq>=out$cv[1,1]
+      }else{
+        seq_null_check <- out$supSeq>=out$cv[1,((100-as.numeric(gsub("%","",colnames(out$cv))))/100)==con$alpha]  
       }
-      ni <- 0
-      seq_null_check <- TRUE
-      while ((ni < N) & (seq_null_check)){
-        out <- pslr10(y, M, ni, con$trm, z, x, control_tmp10)
-        if (is.null(con$alpha)){
-          seq_null_check <- out$supSeq>=out$cv[1,1]
-        }else{
-          seq_null_check <- out$supSeq>=out$cv[1,((100-as.numeric(gsub("%","",colnames(out$cv))))/100)==con$alpha]  
-        }
-        if (seq_null_check){
-          ni <- ni + 1  
-        }
+      if (seq_null_check){
+        mi <- mi + 1  
       }
-      m <- mi 
-      n <- ni
-      out <- pslr4(y, m, n, con$trm, z, x, control_tmp)
-      brcdt <- out$brcstar # global break date
-      brvdt <- out$brvstar # global break date
+    }
+    ni <- 0
+    seq_null_check <- TRUE
+    while ((ni < N) & (seq_null_check)){
+      out <- pslr10(y, M, ni, con$trm, z, x, control_tmp10)
+      if (is.null(con$alpha)){
+        seq_null_check <- out$supSeq>=out$cv[1,1]
+      }else{
+        seq_null_check <- out$supSeq>=out$cv[1,((100-as.numeric(gsub("%","",colnames(out$cv))))/100)==con$alpha]  
+      }
+      if (seq_null_check){
+        ni <- ni + 1  
+      }
+    }
+    m <- mi 
+    n <- ni
+    out <- pslr4(y, m, n, con$trm, z, x, control_tmp)
+    brcdt <- out$brcstar # global break date
+    brvdt <- out$brvstar # global break date
 
   }
   return(list(m = m, n = n, brcdt = brcdt, brvdt = brvdt, supLRT = out$suplr, cv = out$cv))

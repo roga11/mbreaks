@@ -457,8 +457,8 @@ dating_partscSSR <- function(y, z, x, m, h, thtol = 1e-6, maxi = 10000){
   datevec   <- matrix(0, m, m)
   for (mi in 1:m){
     qq <- p+q
-    zz <- cbind(z, c(x))
-    puresc_out <- dating_purescSSR(y, zz, mi, h, con)
+    zz <- cbind(z, x)
+    puresc_out <- dating_purescSSR(y, zz, mi, h)
     globnl <- puresc_out$glob
     datenl <- puresc_out$datevec
     bigvec <- puresc_out$bigvec
