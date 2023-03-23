@@ -135,10 +135,10 @@ determineBreaks <- function(y, M, N, z, x, con){
     }else if ((m>0) & (n==0)){
       out <- pslr0(y, m, con$trm, z, x, control_tmpm)  
       brcdt <- out$brcstar # global break date
-      brvdt <- matrix(0,0,0)
+      brvdt <- NULL
     }else if ((m==0) & (n>0)){
       out <- pslr1(y, n, con$trm, z, x, control_tmpn)  
-      brcdt <- matrix(0,0,0)
+      brcdt <- NULL
       brvdt <- out$brvstar # global break date
     }
   }
