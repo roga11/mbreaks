@@ -7,22 +7,37 @@
 #' 
 #' @export
 determineBreaks <- function(y, M, N, z, x, con){
-
-  if ((M>0) & (N==0)){
-    # start with UDmax test up to M breaks
-    control_tmp9 <- list(robust = con$robust,
+  # start with UDmax test up to M breaks
+  control_tmp9 <- list(robust = con$robust,
+                       prewhit = con$prewhit,
+                       typek = con$typekbc,
+                       kerntype = con$kerntype,
+                       alpha = con$alpha)
+  control_tmp10 <- list(vrobust = con$vrobust,
+                        prewhit = con$prewhit,
+                        typek = con$typekbv,
+                        kerntype = con$kerntype,
+                        alpha = con$alpha)
+  control_tmpm  <- list(robust = con$robust,
+                       prewhit = con$prewhit,
+                       typekc = con$typekbc,
+                       kerntype = con$kerntype,
+                       alpha = con$alpha)
+  control_tmpn  <- list(vrobust = con$vrobust,
+                       prewhit = con$prewhit,
+                       typekbv = con$typekbv,
+                       kerntype = con$kerntype,
+                       alpha = con$alpha)
+  control_tmpmn   <- list(robust = con$robust,
+                          vrobust = con$vrobust,
                           prewhit = con$prewhit,
-                          typek = con$typekbc,
+                          typekbv = con$typekbv,
+                          typekbc = con$typekbc,
                           kerntype = con$kerntype,
                           alpha = con$alpha)
-    
-    control_tmp  <- list(robust = con$robust,
-                         prewhit = con$prewhit,
-                         typekc = con$typekbc,
-                         kerntype = con$kerntype,
-                         alpha = con$alpha)
-    
-    out <- pslr00(y, M, con$trm, z, x, control_tmp)
+  
+  if ((M>0) & (N==0)){
+    out <- pslr00(y, M, con$trm, z, x, control_tmpm)
     # check if null hypothesis is rejected
     if (is.null(con$alpha)){
       UDmax_null_check <- out$UDmaxLRT>out$cvUDmax[1,1]  
@@ -44,7 +59,7 @@ determineBreaks <- function(y, M, N, z, x, con){
           mi <- mi + 1  
         }
       }
-      out <- pslr0(y, mi, con$trm, z, x, control_tmp)
+      out <- pslr0(y, mi, con$trm, z, x, control_tmpm)
       brcdt <- out$brcstar # global break date
       brvdt <- NULL
       m <- mi
@@ -54,18 +69,7 @@ determineBreaks <- function(y, M, N, z, x, con){
     }
   }else if ((M==0) & (N>0)){
     # start with UDmax test up to M breaks
-    control_tmp10 <- list(vrobust = con$vrobust,
-                          prewhit = con$prewhit,
-                          typek = con$typekbv,
-                          kerntype = con$kerntype,
-                          alpha = con$alpha)
-    control_tmp  <- list(vrobust = con$vrobust,
-                         prewhit = con$prewhit,
-                         typekbv = con$typekbv,
-                         kerntype = con$kerntype,
-                         alpha = con$alpha)
-    
-    out <- pslr5(y, N, con$trm, z, x, control_tmp)
+    out <- pslr5(y, N, con$trm, z, x, control_tmpn)
     # check if null hypothesis is rejected
     if (is.null(con$alpha)){
       UDmax_null_check <- out$UDmaxLRT>out$cvUDmax[1,1]  
@@ -87,7 +91,7 @@ determineBreaks <- function(y, M, N, z, x, con){
           ni <- ni + 1  
         }
       }
-      out <- pslr1(y, ni, con$trm, z, x, control_tmp)
+      out <- pslr1(y, ni, con$trm, z, x, control_tmpn)
       brcdt <- NULL
       brvdt <- out$brvstar # global break date
       m <- M
@@ -96,23 +100,6 @@ determineBreaks <- function(y, M, N, z, x, con){
       stop("No breaks in variance found.")
     }
   }else if ((M>0) & (N>0)){
-    control_tmp9  <- list(robust = con$robust,
-                          prewhit = con$prewhit,
-                          typek = con$typekbc,
-                          kerntype = con$kerntype,
-                          alpha = con$alpha)
-    control_tmp10 <- list(vrobust = con$vrobust,
-                          prewhit = con$prewhit,
-                          typek = con$typekbv,
-                          kerntype = con$kerntype,
-                          alpha = con$alpha)
-    control_tmp   <- list(robust = con$robust,
-                          vrobust = con$vrobust,
-                          prewhit = con$prewhit,
-                          typekbv = con$typekbv,
-                          typekbc = con$typekbc,
-                          kerntype = con$kerntype,
-                          alpha = con$alpha)
     mi <- 0
     seq_null_check <- TRUE
     while ((mi < M) & (seq_null_check)){
@@ -141,10 +128,19 @@ determineBreaks <- function(y, M, N, z, x, con){
     }
     m <- mi 
     n <- ni
-    out <- pslr4(y, m, n, con$trm, z, x, control_tmp)
-    brcdt <- out$brcstar # global break date
-    brvdt <- out$brvstar # global break date
-
+    if ((m>0) & (n>0)){
+      out <- pslr4(y, m, n, con$trm, z, x, control_tmpmn)  
+      brcdt <- out$brcstar # global break date
+      brvdt <- out$brvstar # global break date
+    }else if ((m>0) & (n==0)){
+      out <- pslr0(y, m, con$trm, z, x, control_tmpm)  
+      brcdt <- out$brcstar # global break date
+      brvdt <- matrix(0,0,0)
+    }else if ((m==0) & (n>0)){
+      out <- pslr1(y, n, con$trm, z, x, control_tmpn)  
+      brcdt <- matrix(0,0,0)
+      brvdt <- out$brvstar # global break date
+    }
   }
   return(list(m = m, n = n, brcdt = brcdt, brvdt = brvdt, supLRT = out$suplr, cv = out$cv))
 }
