@@ -490,7 +490,7 @@ dating_partscSSR <- function(y, z, x, m, h, thtol = 1e-6, maxi = 10000){
       glb[mi,1] <- ssrn
       datevec[(1:mi),mi] <- datenl[(1:mi), mi]
     }
-    if ((length > thtol) & (i > con$maxi)){
+    if ((length > thtol) & (i > maxi)){
       msg     <- 'The number of iterations has reached the upper limit'
     }else{
       msg   <- 'converged'
