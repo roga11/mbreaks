@@ -242,6 +242,7 @@ estimdl <- function(y, m, n, z, x = matrix(0,0,0), control = list()){
     stdev <- sqrt(estim_out$sigma2)
     brc <- con$brcdt
     brv <- matrix(0,0,0)
+    brk <- brc
     res <-  estim_out$resid
   }else{
     # step 1
