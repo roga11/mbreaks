@@ -641,9 +641,9 @@ pslr4 <- function(y, m, n, trm, z, x = matrix(0,0,0), control = list()){
   if (con$robust==1){
     zbar    <- pzbar(z, m, brcstar)  
     if (p==0){
-      reg1  <- zbar;  
+      reg1  <- zbar 
     }else{
-      reg1  <- c(zbar, x)
+      reg1  <- cbind(zbar, x)
     }
     ibigv <- diag(bigt)
     vseg  <- as.matrix(c(0,brvstar,bigt))
