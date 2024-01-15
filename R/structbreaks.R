@@ -1,12 +1,38 @@
 
-#' @title ols parameter vector estimation
+
+#' @title Ordinary Least Squares Parameter Vector Estimation
 #' 
-#' @details Note: This code is an adaptation of the one originally written by Yohei 
-#' Yamamoto and Pierre Perron for MATLAB. Original codes can be found on 
-#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' @description
+#' The function `olsqr` estimates the parameters of a linear regression model
+#' using Ordinary Least Squares (OLS) method.
 #' 
-#' @references Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
-#' @references Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
+#' @details
+#' This function is an adaptation of the code originally written by Yohei Yamamoto
+#' and Pierre Perron for MATLAB. The original codes can be found on Pierre Perron's
+#' website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
+#' 
+#' @param y Numeric vector containing the response variable.
+#' @param x Numeric matrix containing the matrix of explanatory variables.
+#' 
+#' @return
+#' A numeric matrix representing the estimated parameters of the linear regression model.
+#' 
+#' @references
+#' Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," 
+#' \emph{Econometrica}, vol 66, 47-78.
+#' 
+#' Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," 
+#' \emph{Journal of Applied Econometrics}, 18, 1-22.
+#' 
+#' @examples
+#' # Example usage:
+#' # Set up a simple linear regression problem
+#' set.seed(123)
+#' y <- rnorm(100)
+#' x <- cbind(1, rnorm(100))
+#' 
+#' # Estimate parameters using olsqr
+#' parameters <- olsqr(y, x)
 #' 
 #' @export
 olsqr <- function(y, x){
@@ -14,17 +40,54 @@ olsqr <- function(y, x){
   return(as.matrix(b))
 }
 
-#' @title Estimate OLS with White robust standard errors
+
+
+#' @title Estimate OLS with White Robust Standard Errors
 #' 
-#' @description This function estimates an ordinary least squares model with White robust 
-#' standard error.
+#' @description
+#' This function estimates an ordinary least squares model with White robust standard errors.
 #' 
-#' @details Note: This code is an adaptation of the one originally written by Yohei 
-#' Yamamoto and Pierre Perron for MATLAB. Original codes can be found on 
-#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' @details
+#' Note: This code is an adaptation of the one originally written by Yohei Yamamoto
+#' and Pierre Perron for MATLAB. Original codes can be found on Pierre Perron's
+#' website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
 #' 
-#' @references Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
-#' @references Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
+#' @references
+#' Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," 
+#' \emph{Econometrica}, vol 66, 47-78.
+#' 
+#' Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," 
+#' \emph{Journal of Applied Econometrics}, 18, 1-22.
+#' 
+#' @param Y Numeric vector containing the dependent variable.
+#' @param X Numeric matrix containing the regressors.
+#' @param add_constant Logical indicating whether to add a constant to X. Default is FALSE.
+#' 
+#' @return
+#' A list containing the following components:
+#' \item{y}{Dependent variable (numeric vector).}
+#' \item{w}{Regressors (numeric matrix).}
+#' \item{coef}{Estimator corresponding to the k regressors (numeric vector).}
+#' \item{SE}{Standard error of the estimator (numeric vector).}
+#' \item{SE_robust}{White robust standard error of the estimator (numeric vector).}
+#' \item{sigma2}{Estimated variance of disturbances (numeric).}
+#' \item{resid}{Residuals series of the regression (numeric vector).}
+#' \item{SSR}{Sum of squared residuals (numeric).}
+#' \item{t_stat}{T-statistics for each coefficient (numeric vector).}
+#' \item{p_val}{P-values for each coefficient (numeric vector).}
+#' \item{R2}{R-squared value (numeric).}
+#' \item{logLike}{Log-likelihood of the model (numeric).}
+#' \item{DW}{Durbin-Watson statistic (numeric).}
+#' 
+#' @examples
+#' # Example usage:
+#' # Set up a simple linear regression problem
+#' set.seed(123)
+#' Y <- rnorm(100)
+#' X <- cbind(1, rnorm(100))
+#' 
+#' # Estimate parameters using OLS with White robust standard errors
+#' result <- OLS(Y, X, add_constant = TRUE)
 #' 
 #' @export
 OLS <- function(Y, X, add_constant){
@@ -96,16 +159,29 @@ OLS <- function(Y, X, add_constant){
 }
 
 
-#' @title Diagonal partition of observations by regimes
+#' @title Diagonal Partition of Observations by Regimes
 #' 
-#' @description procedure to construct the diagonal partition of z with m break at date b.
+#' @description
+#' Procedure to construct the diagonal partition of z with m breaks at date b.
 #' 
-#' @details Note: This code is an adaptation of the one originally written by Yohei 
-#' Yamamoto and Pierre Perron for MATLAB. Original codes can be found on 
-#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' @details
+#' Note: This code is an adaptation of the one originally written by Yohei Yamamoto
+#' and Pierre Perron for MATLAB. Original codes can be found on Pierre Perron's
+#' website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
 #' 
-#' @references Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
-#' @references Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
+#' @references
+#' Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," 
+#' \emph{Econometrica}, vol 66, 47-78.
+#' 
+#' Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," 
+#' \emph{Journal of Applied Econometrics}, 18, 1-22.
+#' 
+#' @param zz Numeric matrix containing the observations.
+#' @param m Integer indicating the number of breaks.
+#' @param bb Numeric matrix containing the break dates.
+#' 
+#' @return
+#' A numeric matrix representing the diagonal partition of z with m breaks at date b.
 #' 
 #' @export
 pzbar <- function(zz, m, bb){
