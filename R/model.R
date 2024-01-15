@@ -236,7 +236,7 @@ estimdl <- function(y, m, n, z, x = matrix(0,0,0), control = list()){
     mdlout$cv <- brkout$cv
   }
   # ----- esimate model
-  if ((is.null(con$brcdt)==FALSE) & (is.null(con$brvdt))){
+  if ((is.null(con$brcdt)==FALSE) & (is.null(con$brvdt))){ # breaks in mean & no breaks in var
     estim_out <- estim(y,z,x,mdlout$m,con$brcdt,con$robust,con$prewhit,con$hetomega,con$hetq,con$hetdat,con$hetvar)
     beta <- estim_out$coef
     stdev <- sqrt(estim_out$sigma2)
@@ -246,13 +246,13 @@ estimdl <- function(y, m, n, z, x = matrix(0,0,0), control = list()){
     res <-  estim_out$resid
   }else{
     # step 1
-    if ((is.null(con$brcdt)) & (is.null(con$brvdt)==FALSE)){
+    if ((is.null(con$brcdt)) & (is.null(con$brvdt)==FALSE)){ # no breaks in mean & breaks in var
       brc <- matrix(0,0,0)
-      brk <- as.matrix(sort(unique(c(brcdt,con$brvdt))))
+      brk <- as.matrix(sort(unique(c(brc,con$brvdt))))
       K <- length(brk)
       cbrind <- as.matrix(as.numeric(brk %in% con$brcdt))
       vbrind <- as.matrix(as.numeric(brk %in% con$brvdt))
-    }else if ((is.null(con$brcdt)==FALSE) & (is.null(con$brvdt)==FALSE)){
+    }else if ((is.null(con$brcdt)==FALSE) & (is.null(con$brvdt)==FALSE)){ # breaks in mean & breaks in var
       brk <- as.matrix(sort(unique(c(con$brcdt,con$brvdt))))
       K <- length(brk)
       cbrind <- as.matrix(as.numeric(brk %in% con$brcdt))

@@ -3,28 +3,52 @@
 
 #' @title Compute SSR recursively
 #' 
-#' @description This procedure computes recursive residuals from a data set that starts
+#' @description
+#' This function computes recursive residuals from a data set that starts
 #' at date "start" and ends at date "last". It returns a vector of sum of
 #' squared residuals (SSR) of length last-start+1 (stored for convenience in a vector of length T).
 #' 
-#' @param start starting entry of the sample used.
-#' @param y dependent variable
-#' @param z matrix of regressors of dimension q
-#' @param h minimal length of a segment
-#' @param last ending date of the last segment considered.
-#' 
-#' @details Note: This code is an adaptation of the one originally written by Yohei 
+#' @details
+#' Note: This code is an adaptation of the one originally written by Yohei 
 #' Yamamoto and Pierre Perron for MATLAB. Original codes can be found on 
 #' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
 #' 
-#' @references Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
-#' @references Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
+#' @param start The starting entry of the sample used.
+#' @param y The dependent variable.
+#' @param z The matrix of regressors of dimension q.
+#' @param h The minimal length of a segment.
+#' @param last The ending date of the last segment considered.
+#' 
+#' @return A vector of sum of squared residuals (SSR) of length last-start+1.
+#' 
+#' @references
+#' Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
+#' Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
 #' 
 #' @export
 ssr_vec <- function(start, y, z, h, last) {
     .Call(`_mbreaks_ssr_vec`, start, y, z, h, last)
 }
 
+#' @title Bigvec: Triangular matrix vectorized
+#'
+#' @description
+#' This function computes the triangular matrix discussed in Bai & Perron (2003) but vectorizes the upper triangular part.
+#'
+#' @param y dependent variable
+#' @param z matrix of regressors
+#' @param h minimal length of a segment
+#'
+#' @details Note: This code is an adaptation of the one originally written by Yohei
+#' Yamamoto and Pierre Perron for MATLAB. Original codes can be found on
+#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#'
+#' @references
+#' Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
+#' Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
+#'
+#' @return A vectorized upper triangular matrix with SSR for possible regimes.
+#'
 #' @export
 ssrbigvec <- function(y, z, h) {
     .Call(`_mbreaks_ssrbigvec`, y, z, h)
@@ -32,94 +56,197 @@ ssrbigvec <- function(y, z, h) {
 
 #' @title MLE function
 #' 
-#' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+#' @description
+#' This function computes the Maximum Likelihood Estimation (MLE) of a linear regression model with structural changes in the error variance.
+#' 
+#' @details
+#' This code is an adaptation of the one originally written by Pierre Perron, Yohei Yamamoto, and Jing Zhou in MATLAB.
+#' Original codes can be found on Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' 
+#' @param start Starting entry of the sample used.
+#' @param y Dependent variable.
+#' @param z Matrix of regressors of dimension q.
+#' @param q Number of regressors.
+#' @param x Additional matrix of regressors with dimension p. Set to 0 if not used.
+#' @param p Number of additional regressors.
+#' @param h Minimal length of a segment.
+#' @param last Ending date of the last segment considered.
+#' 
+#' @references
+#' Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model," \emph{Quantitative Economics}, vol 11, 1019-1057.
+#' 
+#' @return A vector of log-likelihood values.
+#' 
 #' @export
 mlef <- function(start, y, z, q, x, p, h, last) {
     .Call(`_mbreaks_mlef`, start, y, z, q, x, p, h, last)
 }
 
-#' @title MLE function
+#' @title MLE function with Vectorized Output
 #' 
-#' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+#' @description
+#' This function computes the Maximum Likelihood Estimation (MLE) of a linear regression model with structural changes in the error variance for multiple segments.
+#' The result is a vectorized output containing log-likelihood values.It is similar to `ssrbigvec` but uses loglikelihood instead of SSR. 
+#' 
+#' @details
+#' This code is an adaptation of the one originally written by Pierre Perron, Yohei Yamamoto, and Jing Zhou in MATLAB.
+#' Original codes can be found on Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' 
+#' @param y Dependent variable.
+#' @param z Matrix of regressors of dimension q.
+#' @param q Number of regressors.
+#' @param x Additional matrix of regressors with dimension p. Set to 0 if not used.
+#' @param p Number of additional regressors.
+#' @param h Minimal length of a segment.
+#' @param bigt Total number of observations.
+#' 
+#' @references
+#' Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model," \emph{Quantitative Economics}, vol 11, 1019-1057.
+#' 
+#' @return A vectorized output containing log-likelihood values for each segment.
+#' 
 #' @export
 mlebigvec <- function(y, z, q, x, p, h, bigt) {
     .Call(`_mbreaks_mlebigvec`, y, z, q, x, p, h, bigt)
 }
 
-#' @title optimal break partitions for a given segment
+#' @title Optimal Break Partitions for a Given Segment
 #' 
-#' @description procedure to obtain an optimal one break partitions for a segment that 
-#' starts at date start and ends at date last. It returns the optimal break and the 
-#' associated SSR.
+#' @description
+#' Procedure to obtain an optimal one-break partition for a segment that 
+#' starts at date `start` and ends at date `last`. It returns the optimal break 
+#' date (`dx`) and the associated Sum of Squared Residuals (SSRmin).
 #' 
-#' @param start: beginning of the segment considered
-#' @param b1: first possible break date
-#' @param b2: last possible break date
-#' @param last: end of segment considered
+#' @details
+#' This code is translated from MATLAB code written by Yohei Yamamoto and Pierre Perron.
+#' Original codes can be found on Pierre Perron's website: https://blogs.bu.edu/perron/codes/
 #' 
-#' @details Note: This code is translated from MATLABS code written by Yohei 
-#' Yamamoto and Pierre Perron. Original codes can be found on 
-#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' @param start Beginning of the segment considered.
+#' @param b1 First possible break date.
+#' @param b2 Last possible break date.
+#' @param last End of the segment considered.
+#' @param bigvec Vector containing SSR values for each possible break date.
+#' @param bigt Total number of observations.
 #' 
-#' @references Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
-#' @references Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
+#' @references
+#' Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
+#' Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
+#' 
+#' @return A list containing the optimal break date (`dx`) and the associated SSR (`ssrmin`).
 #' 
 #' @export
 parti <- function(start, b1, b2, last, bigvec, bigt) {
     .Call(`_mbreaks_parti`, start, b1, b2, last, bigvec, bigt)
 }
 
-#' @title optimal break partitions for a given segment using log-likelihood
+#' @title Optimal Break Partitions for a Given Segment Using Log-Likelihood
 #' 
-#' @description procedure to obtain an optimal one break partitions for a segment that 
-#' starts at date start and ends at date last. It returns the optimal break and the 
-#' associated log-likelihood (parti2() in original MATLAB code)
+#' @description
+#' Procedure to obtain an optimal one-break partition for a segment that 
+#' starts at date `start` and ends at date `last`. It returns the optimal break 
+#' date (`dx`) and the associated log-likelihood ratio (`lrmax`).
 #' 
-#' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+#' @param start Beginning of the segment considered.
+#' @param b1 First possible break date.
+#' @param b2 Last possible break date.
+#' @param last End of the segment considered.
+#' @param bigvec Vector containing log-likelihood values for each possible break date.
+#' @param bigt Total number of observations.
+#' 
+#' @references
+#' Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+#' 
+#' @return A list containing the optimal break date (`dx`) and the associated log-likelihood ratio (`lrmax`).
 #' 
 #' @export
 parti_loglik <- function(start, b1, b2, last, bigvec, bigt) {
     .Call(`_mbreaks_parti_loglik`, start, b1, b2, last, bigvec, bigt)
 }
 
-#' @title Compute global break dates for pure structural change model
+#' @title Compute Global Break Dates for Pure Structural Change Model
 #' 
-#' @description This is the main procedure which calculates the break points that globally
-#'  minimizes the SSR. It returns optimal dates and associated SSR for all numbers of breaks less than or equal to m.
+#' @description
+#' This is the main procedure which calculates the break points that globally
+#' minimizes the SSR. It returns optimal dates and associated SSR for all numbers of breaks less than or equal to `m`.
 #' 
-#' @details Note: This code is an adaptation of the one originally written by Yohei 
+#' @details
+#' Note: This code is an adaptation of the one originally written by Yohei 
 #' Yamamoto and Pierre Perron for MATLAB. Original code files can be found on 
 #' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
 #' 
-#' @param y A (\code{T x 1}) vector with endogenous variable.
+#' @param y A (\code{T x 1}) vector with the endogenous variable.
 #' @param z A (\code{T x q}) matrix with explanatory variables subject to change.
 #' @param m An integer determining the number of breaks to find.
 #' @param h An integer determining the minimum length of a regime. 
 #' 
-#' @references Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
-#' @references Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
+#' @references
+#' Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
+#' Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
+#' 
+#' @return
+#' A list containing:
+#' \itemize{
+#'   \item \code{glb}: A vector of globally optimal sum of squared residuals (SSR) for each number of breaks.
+#'   \item \code{datevec}: A matrix where each column corresponds to the optimal break dates for a specific number of breaks.
+#'   \item \code{bigvec}: A vector of sum of squared residuals (SSR) for each possible break date.
+#' }
 #' 
 #' @export
 dating_purescSSR <- function(y, z, m, h) {
     .Call(`_mbreaks_dating_purescSSR`, y, z, m, h)
 }
 
-#' @title Compute global break dates using log-likelihood 
+#' @title Compute Global Break Dates using Log-Likelihood
 #' 
-#' @description This is the main procedure which calculates the break points that globally maximize the loglikelihood function. It returns optimal dates and associated log likelihood for all numbers of breaks less than or equal to m. 
+#' @description
+#' This is the main procedure which calculates the break points that globally maximize the log-likelihood function. 
+#' It returns optimal dates and associated log likelihood for all numbers of breaks less than or equal to `m`.
 #' 
-#' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+#' @references
+#' Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+#' 
+#' @param bigvec A vector of sum of squared residuals (SSR) for each possible break date.
+#' @param h An integer determining the minimum length of a regime.
+#' @param m An integer determining the number of breaks to find.
+#' @param bigt An integer determining the total number of observations.
+#' 
+#' @return
+#' A list containing:
+#' \itemize{
+#'   \item \code{glob}: A vector of globally optimal log likelihood values for each number of breaks.
+#'   \item \code{datevec}: A matrix where each column corresponds to the optimal break dates for a specific number of breaks.
+#' }
 #' 
 #' @export
 dating_loglik <- function(bigvec, h, m, bigt) {
     .Call(`_mbreaks_dating_loglik`, bigvec, h, m, bigt)
 }
 
-#' @title Compute global break dates using log-likelihood 
+#' @title Compute Global Break Dates using Maximum Likelihood Estimation (MLE)
 #' 
-#' @description This is the main procedure which calculates the break points that globally maximize the loglikelihood function. It returns optimal dates and associated log likelihood for all numbers of breaks less than or equal to m. 
+#' @description
+#' This is the main procedure which calculates the break points that globally maximize the log-likelihood function. 
+#' It returns optimal dates and associated log likelihood for all numbers of breaks less than or equal to `m`.
 #' 
-#' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+#' @references
+#' Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+#' 
+#' @param y A (\code{T x 1}) vector with the endogenous variable.
+#' @param z A (\code{T x q}) matrix with explanatory variables subject to change.
+#' @param q An integer determining the number of explanatory variables in matrix \code{z}.
+#' @param x A (\code{T x p}) matrix of exogenous variables.
+#' @param p An integer determining the number of exogenous variables in matrix \code{x}.
+#' @param h An integer determining the minimum length of a regime.
+#' @param m An integer determining the number of breaks to find.
+#' @param bigt An integer determining the total number of observations.
+#' 
+#' @return
+#' A list containing:
+#' \itemize{
+#'   \item \code{glob}: A vector of globally optimal negative log likelihood values for each number of breaks.
+#'   \item \code{datevec}: A matrix where each column corresponds to the optimal break dates for a specific number of breaks.
+#'   \item \code{bigvec}: A vector of sum of squared residuals (SSR) for each possible break date.
+#' }
 #' 
 #' @export
 dating_MLE <- function(y, z, q, x, p, h, m, bigt) {
