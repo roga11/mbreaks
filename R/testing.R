@@ -1,13 +1,24 @@
 
 
-
-#' @title Test stat for  0 vs m breaks in mean given n=0 breaks in var
+#' @title Test for  0 vs m breaks in mean given n=0 breaks in var
 #' 
 #' @description Computes the supLRT test statistic for m coefficient changes given no variance changes
 #' 
+#' @param y Numeric matrix: Dependent variable.
+#' @param m Integer: Number of breaks in coefficients.
+#' @param trm Numeric: Proportion of data used to estimate the long-run variance.
+#' @param z Numeric matrix: Matrix of explanatory variables.
+#' @param x Numeric matrix: Matrix of additional covariates.
+#' @param control List: List with control options.
+#' 
 #' @details Note: This code is a translation of the one originally written by Pierre 
 #' Perron and Yohei Yamamoto for MATLAB. Original code files can be found on 
-#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' Pierre Perron's website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
+#' 
+#' @return A list with the following components:
+#' - `suplr`: Numeric matrix, supLRT test statistic.
+#' - `brcstar`: Numeric matrix, estimated break dates.
+#' - `cv`: Numeric matrix, critical values.
 #' 
 #' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 #' 
@@ -131,19 +142,25 @@ pslr0 <- function(y, m, trm, z, x = matrix(0,0,0), control = list()){
 }
 
 
-
-
-
-
-#' @title Test stat for  0 vs n breaks in variance given m=0 breaks in mean
+#' @title Test for  0 vs n breaks in variance given m=0 breaks in mean
 #' 
 #' @description Computes the sup LR_1T test statistic for n variance changes given no coefficient changes
 #' 
 #' @details Note: This code is a translation of the one originally written by Pierre 
 #' Perron and Yohei Yamamoto for MATLAB. Original code files can be found on 
-#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' Pierre Perron's website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
 #' 
-#' @return suplr - corrected test statistic (see eq. 9 of PYZ 2020)
+#' @param y Numeric matrix: Dependent variable.
+#' @param n Integer: Number of breaks in variance.
+#' @param trm Numeric: Proportion of data used to estimate the long-run variance.
+#' @param z Numeric matrix: Matrix of explanatory variables.
+#' @param x Numeric matrix: Matrix of additional covariates.
+#' @param control List: List with control options.
+#' 
+#' @return A list with the following components:
+#' - `suplr`: Numeric matrix, sup LR_1T test statistic (see eq. 9 of PYZ 2020).
+#' - `brvstar`: Numeric matrix, estimated break dates for variance changes.
+#' - `cv`: Numeric matrix, critical values.
 #' 
 #' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 #' 
@@ -230,15 +247,28 @@ pslr1 <- function(y, n, trm, z, x = matrix(0,0,0), control = list()){
 }
 
 
-#' @title Test stat for  0 vs n breaks in variance given M=m breaks in mean
+
+#' @title Test for  0 vs n breaks in variance given M=m breaks in mean
 #' 
 #' @description Computes the sup LR_2T test statistic for n variance changes given m coefficient changes
 #' 
 #' @details Note: This code is a translation of the one originally written by Pierre 
 #' Perron and Yohei Yamamoto for MATLAB. Original code files can be found on 
-#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' Pierre Perron's website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
 #' 
-#' @return suplr - corrected test statistic (see eq. 9 of PYZ 2020)
+#' @param y Numeric matrix: Dependent variable.
+#' @param m Integer: Number of breaks in mean.
+#' @param n Integer: Number of breaks in variance.
+#' @param trm Numeric: Proportion of data used to estimate the long-run variance.
+#' @param z Numeric matrix: Matrix of explanatory variables.
+#' @param x Numeric matrix: Matrix of additional covariates.
+#' @param control List: List with control options.
+#' 
+#' @return A list with the following components:
+#' - `suplr`: Numeric matrix, sup LR_2T test statistic.
+#' - `brcstar`: Numeric matrix, estimated break dates for coefficient changes.
+#' - `brvstar`: Numeric matrix, estimated break dates for variance changes.
+#' - `cv`: Numeric matrix, critical values.
 #' 
 #' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 #' 
@@ -343,13 +373,28 @@ pslr2 <- function(y, m, n, trm, z, x = matrix(0,0,0), control = list()){
 
 
 
-#' @title Test stat for  0 vs m breaks in mean given N=n breaks in var
+
+#' @title Test for  0 vs m breaks in mean given N=n breaks in var
 #' 
 #' @description Computes the sup LR_3T test statistic for m coefficient changes given n variance changes
 #' 
 #' @details Note: This code is a translation of the one originally written by Pierre 
 #' Perron and Yohei Yamamoto for MATLAB. Original code files can be found on 
-#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' Pierre Perron's website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
+#' 
+#' @param y Numeric matrix: Dependent variable.
+#' @param m Integer: Number of breaks in mean.
+#' @param n Integer: Number of breaks in variance.
+#' @param trm Numeric: Proportion of data used to estimate the long-run variance.
+#' @param z Numeric matrix: Matrix of explanatory variables.
+#' @param x Numeric matrix: Matrix of additional covariates.
+#' @param control List: List with control options.
+#' 
+#' @return A list with the following components:
+#' - `suplr`: Numeric matrix, sup LR_3T test statistic.
+#' - `brcstar`: Numeric matrix, estimated break dates for coefficient changes.
+#' - `brvstar`: Numeric matrix, estimated break dates for variance changes.
+#' - `cv`: Numeric matrix, critical values.
 #' 
 #' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 #' 
@@ -526,14 +571,27 @@ pslr3 <- function(y, m, n, trm, z, x = matrix(0,0,0), control = list()){
 }
 
 
-
-#' @title Test stat for  0 vs m breaks in mean and 0 vs n breaks in var
+#' @title Test for  0 vs m breaks in mean and 0 vs n breaks in var
 #' 
 #' @description Computes the sup LR_4T test statistic for m coefficient changes and n variance changes
 #' 
 #' @details Note: This code is a translation of the one originally written by Pierre 
 #' Perron and Yohei Yamamoto for MATLAB. Original code files can be found on 
-#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' Pierre Perron's website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
+#' 
+#' @param y Numeric matrix: Dependent variable.
+#' @param m Integer: Number of breaks in mean.
+#' @param n Integer: Number of breaks in variance.
+#' @param trm Numeric: Proportion of data used to estimate the long-run variance.
+#' @param z Numeric matrix: Matrix of explanatory variables.
+#' @param x Numeric matrix: Matrix of additional covariates.
+#' @param control List: List with control options.
+#' 
+#' @return A list with the following components:
+#' - `suplr`: Numeric matrix, sup LR_4T test statistic.
+#' - `brcstar`: Numeric matrix, estimated break dates for coefficient changes.
+#' - `brvstar`: Numeric matrix, estimated break dates for variance changes.
+#' - `cv`: Numeric matrix, critical values.
 #' 
 #' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 #' 
@@ -719,13 +777,25 @@ pslr4 <- function(y, m, n, trm, z, x = matrix(0,0,0), control = list()){
 
 
 
-#' @title Test stat for  0 vs M breaks in mean given n=0 breaks in var
+#' @title Test for  0 vs M breaks in mean given n=0 breaks in var
 #' 
 #' @description Computes the UDmaxLRT test statistic for M coefficient changes given no variance changes
 #' 
 #' @details Note: This code is a translation of the one originally written by Pierre 
 #' Perron and Yohei Yamamoto for MATLAB. Original code files can be found on 
-#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' Pierre Perron's website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
+#' 
+#' @param y Numeric matrix: Dependent variable.
+#' @param M Integer: Number of breaks in mean.
+#' @param trm Numeric: Proportion of data used to estimate the long-run variance.
+#' @param z Numeric matrix: Matrix of explanatory variables.
+#' @param x Numeric matrix: Matrix of additional covariates.
+#' @param control List: List with control options.
+#' 
+#' @return A list with the following components:
+#' - `UDmaxLRT`: Numeric matrix, UDmaxLRT test statistic.
+#' - `testtrace`: List, test statistics for each number of breaks.
+#' - `cvUDmax`: Numeric matrix, critical values for UDmaxLRT test.
 #' 
 #' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 #' 
@@ -791,13 +861,26 @@ pslr00 <- function(y, M, trm, z, x = matrix(0,0,0), control = list()){
 
 
 
-#' @title Test stat for  0 vs N breaks in variance given m=0 breaks in mean
+
+#' @title Test for  0 vs N breaks in variance given m=0 breaks in mean
 #' 
-#' @description Computes the UDmaxLRT_1 test statistic for n variance changes given no coefficient changes
+#' @description Computes the UDmaxLRT_1 test statistic for N variance changes given no coefficient changes
 #' 
 #' @details Note: This code is a translation of the one originally written by Pierre 
 #' Perron and Yohei Yamamoto for MATLAB. Original code files can be found on 
-#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' Pierre Perron's website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
+#' 
+#' @param y Numeric matrix: Dependent variable.
+#' @param N Integer: Number of breaks in variance.
+#' @param trm Numeric: Proportion of data used to estimate the long-run variance.
+#' @param z Numeric matrix: Matrix of explanatory variables.
+#' @param x Numeric matrix: Matrix of additional covariates.
+#' @param control List: List with control options.
+#' 
+#' @return A list with the following components:
+#' - `UDmaxLRT`: Numeric matrix, UDmaxLRT_1 test statistic.
+#' - `testtrace`: List, test statistics for each number of breaks.
+#' - `cvUDmax`: Numeric matrix, critical values for UDmaxLRT_1 test.
 #' 
 #' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 #' 
@@ -864,13 +947,27 @@ pslr5 <- function(y, N, trm, z, x = matrix(0,0,0), control = list()){
 
 
 
-#' @title Test stat for  0 vs N breaks in variance given M=m breaks in mean
+
+#' @title Test for  0 vs N breaks in variance given M=m breaks in mean
 #' 
-#' @description Computes the UDmaxLR_2T test statistic for n variance changes given m coefficient changes
+#' @description Computes the UDmaxLR_2T test statistic for N variance changes given m coefficient changes
 #' 
 #' @details Note: This code is a translation of the one originally written by Pierre 
 #' Perron and Yohei Yamamoto for MATLAB. Original code files can be found on 
-#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' Pierre Perron's website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
+#' 
+#' @param y Numeric matrix: Dependent variable.
+#' @param m Integer: Number of breaks in mean.
+#' @param N Integer: Number of breaks in variance.
+#' @param trm Numeric: Proportion of data used to estimate the long-run variance.
+#' @param z Numeric matrix: Matrix of explanatory variables.
+#' @param x Numeric matrix: Matrix of additional covariates.
+#' @param control List: List with control options.
+#' 
+#' @return A list with the following components:
+#' - `UDmaxLRT`: Numeric matrix, UDmaxLRT_2 test statistic.
+#' - `testtrace`: List, test statistics for each number of breaks.
+#' - `cvUDmax`: Numeric matrix, critical values for UDmaxLRT_2 test.
 #' 
 #' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 #' 
@@ -937,14 +1034,29 @@ pslr6 <- function(y, m, N, trm, z, x = matrix(0,0,0), control = list()){
   }
   return(pslr6_out)
 }  
-  
+ 
+
+
 #' @title Test stat for  0 vs M breaks in mean given N=n breaks in var
 #' 
-#' @description Computes the UDmaxLR_3T test statistic for m coefficient changes given n variance changes
+#' @description Computes the UDmaxLR_3T test statistic for M coefficient changes given n variance changes
 #' 
 #' @details Note: This code is a translation of the one originally written by Pierre 
 #' Perron and Yohei Yamamoto for MATLAB. Original code files can be found on 
-#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' Pierre Perron's website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
+#' 
+#' @param y Numeric matrix: Dependent variable.
+#' @param M Integer: Number of breaks in mean.
+#' @param n Integer: Number of breaks in variance.
+#' @param trm Numeric: Proportion of data used to estimate the long-run variance.
+#' @param z Numeric matrix: Matrix of explanatory variables.
+#' @param x Numeric matrix: Matrix of additional covariates.
+#' @param control List: List with control options.
+#' 
+#' @return A list with the following components:
+#' - `UDmaxLRT`: Numeric matrix, UDmaxLR_3T test statistic.
+#' - `testtrace`: List, test statistics for each number of breaks.
+#' - `cvUDmax`: Numeric matrix, critical values for UDmaxLR_3T test.
 #' 
 #' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 #' 
@@ -1009,13 +1121,27 @@ pslr7 <- function(y, M, n, trm, z, x = matrix(0,0,0), control = list()){
 }
 
 
-#' @title Test stat for  0 vs M breaks in mean and 0 vs N breaks in var
+
+#' @title Test for  0 vs M breaks in mean and 0 vs N breaks in var
 #' 
 #' @description Computes the UDmaxLR_4T test statistic for max of M coefficient changes and max of N variance changes
 #' 
 #' @details Note: This code is a translation of the one originally written by Pierre 
 #' Perron and Yohei Yamamoto for MATLAB. Original code files can be found on 
-#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' Pierre Perron's website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
+#' 
+#' @param y Numeric matrix: Dependent variable.
+#' @param M Integer: Number of breaks in mean.
+#' @param N Integer: Number of breaks in variance.
+#' @param trm Numeric: Proportion of data used to estimate the long-run variance.
+#' @param z Numeric matrix: Matrix of explanatory variables.
+#' @param x Numeric matrix: Matrix of additional covariates.
+#' @param control List: List with control options.
+#' 
+#' @return A list with the following components:
+#' - `UDmaxLRT`: Numeric matrix, UDmaxLR_4T test statistic.
+#' - `testtrace`: List, test statistics for each combination of breaks.
+#' - `cvUDmax`: Numeric matrix, critical values for UDmaxLR_4T test.
 #' 
 #' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 #' 
@@ -1085,17 +1211,33 @@ pslr8 <- function(y, M, N, trm, z, x = matrix(0,0,0), control = list()){
   return(pslr8_out)
 }
 
-#' @title Test stat for  m vs m+1 breaks in mean given n breaks in var
+
+
+#' @title Test for m vs m+1 breaks in mean given n breaks in var
 #' 
 #' @description Computes the SeqLR_9T test statistic for m coefficient changes versus m + 1 coefficient changes given n variance change
 #' 
 #' @details Note: This code is a translation of the one originally written by Pierre 
 #' Perron and Yohei Yamamoto for MATLAB. Original code files can be found on 
-#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' Pierre Perron's website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
+#' 
+#' @param y Numeric matrix: Dependent variable.
+#' @param m Integer: Number of breaks in mean.
+#' @param n Integer: Number of breaks in variance.
+#' @param trm Numeric: Proportion of data used to estimate the long-run variance.
+#' @param z Numeric matrix: Matrix of explanatory variables.
+#' @param x Numeric matrix: Matrix of additional covariates.
+#' @param control List: List with control options.
+#' 
+#' @return A list with the following components:
+#' - `supSeq`: Numeric matrix, SeqLR_9T test statistic.
+#' - `newd`: Numeric, estimated break date.
+#' - `cv`: Numeric matrix, critical values for SeqLR_9T test.
 #' 
 #' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 #' 
 #' @export
+
 pslr9 <- function(y, m, n, trm, z, x = matrix(0,0,0), control = list()){
   # ----- Set control values
   con <- list(robust = TRUE,
@@ -1334,13 +1476,26 @@ pslr9 <- function(y, m, n, trm, z, x = matrix(0,0,0), control = list()){
 
 
 
-#' @title Test stat for  n vs n+1 breaks in var given m breaks in mean
+#' @title Test for  n vs n+1 breaks in var given m breaks in mean
 #' 
 #' @description Computes the SeqLR_10T test statistic for n variance changes versus n + 1 variance changes given m coefficient changes
 #' 
 #' @details Note: This code is a translation of the one originally written by Pierre 
 #' Perron and Yohei Yamamoto for MATLAB. Original code files can be found on 
-#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' Pierre Perron's website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
+#' 
+#' @param y Numeric matrix: Dependent variable.
+#' @param m Integer: Number of breaks in mean.
+#' @param n Integer: Number of breaks in variance.
+#' @param trm Numeric: Proportion of data used to estimate the long-run variance.
+#' @param z Numeric matrix: Matrix of explanatory variables.
+#' @param x Numeric matrix: Matrix of additional covariates.
+#' @param control List: List with control options.
+#' 
+#' @return A list with the following components:
+#' - `supSeq`: Numeric matrix, SeqLR_10T test statistic.
+#' - `newd`: Numeric, estimated break date.
+#' - `cv`: Numeric matrix, critical values for SeqLR_10T test.
 #' 
 #' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 #' 

@@ -14,7 +14,7 @@ using namespace Rcpp;
 //' @details
 //' Note: This code is an adaptation of the one originally written by Yohei 
 //' Yamamoto and Pierre Perron for MATLAB. Original codes can be found on 
-//' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+//' Pierre Perron's website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
 //' 
 //' @param start The starting entry of the sample used.
 //' @param y The dependent variable.
@@ -27,6 +27,8 @@ using namespace Rcpp;
 //' @references
 //' Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
 //' Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
+//' 
+//' @keywords internal
 //' 
 //' @export
 // [[Rcpp::export]]
@@ -64,7 +66,7 @@ arma::vec ssr_vec(int start, arma::vec y, arma::mat z, int h, int last){
 //'
 //' @details Note: This code is an adaptation of the one originally written by Yohei
 //' Yamamoto and Pierre Perron for MATLAB. Original codes can be found on
-//' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+//' Pierre Perron's website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
 //'
 //' @references
 //' Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
@@ -72,6 +74,8 @@ arma::vec ssr_vec(int start, arma::vec y, arma::mat z, int h, int last){
 //'
 //' @return A vectorized upper triangular matrix with SSR for possible regimes.
 //'
+//' @keywords internal
+//' 
 //' @export
 // [[Rcpp::export]]
 arma::vec ssrbigvec(arma::mat y, arma::mat z, int h){
@@ -94,7 +98,7 @@ arma::vec ssrbigvec(arma::mat y, arma::mat z, int h){
 //' 
 //' @details
 //' This code is an adaptation of the one originally written by Pierre Perron, Yohei Yamamoto, and Jing Zhou in MATLAB.
-//' Original codes can be found on Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+//' Original codes can be found on Pierre Perron's website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
 //' 
 //' @param start Starting entry of the sample used.
 //' @param y Dependent variable.
@@ -109,6 +113,8 @@ arma::vec ssrbigvec(arma::mat y, arma::mat z, int h){
 //' Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model," \emph{Quantitative Economics}, vol 11, 1019-1057.
 //' 
 //' @return A vector of log-likelihood values.
+//' 
+//' @keywords internal
 //' 
 //' @export
 // [[Rcpp::export]]
@@ -209,7 +215,7 @@ arma::vec mlef(int start, arma::vec y, arma::mat z, int q, arma::mat x, int p, i
 //' 
 //' @details
 //' This code is an adaptation of the one originally written by Pierre Perron, Yohei Yamamoto, and Jing Zhou in MATLAB.
-//' Original codes can be found on Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+//' Original codes can be found on Pierre Perron's website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
 //' 
 //' @param y Dependent variable.
 //' @param z Matrix of regressors of dimension q.
@@ -219,10 +225,12 @@ arma::vec mlef(int start, arma::vec y, arma::mat z, int q, arma::mat x, int p, i
 //' @param h Minimal length of a segment.
 //' @param bigt Total number of observations.
 //' 
+//' @return A vectorized output containing log-likelihood values for each segment.
+//' 
 //' @references
 //' Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model," \emph{Quantitative Economics}, vol 11, 1019-1057.
 //' 
-//' @return A vectorized output containing log-likelihood values for each segment.
+//' @keywords internal
 //' 
 //' @export
 // [[Rcpp::export]]
@@ -246,7 +254,7 @@ arma::vec mlebigvec(arma::vec y, arma::mat z, int q, arma::mat x, int p, int h, 
 //' 
 //' @details
 //' This code is translated from MATLAB code written by Yohei Yamamoto and Pierre Perron.
-//' Original codes can be found on Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+//' Original codes can be found on Pierre Perron's website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
 //' 
 //' @param start Beginning of the segment considered.
 //' @param b1 First possible break date.
@@ -260,6 +268,8 @@ arma::vec mlebigvec(arma::vec y, arma::mat z, int q, arma::mat x, int p, int h, 
 //' Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
 //' 
 //' @return A list containing the optimal break date (`dx`) and the associated SSR (`ssrmin`).
+//' 
+//' @keywords internal
 //' 
 //' @export
 // [[Rcpp::export]]
@@ -289,6 +299,11 @@ List parti(int start, int b1, int b2, int last, arma::vec bigvec, int bigt){
 //' starts at date `start` and ends at date `last`. It returns the optimal break 
 //' date (`dx`) and the associated log-likelihood ratio (`lrmax`).
 //' 
+//' @details
+//' Note: This code is an adaptation of the one originally written by Yohei 
+//' Yamamoto and Pierre Perron for MATLAB. Original codes can be found on 
+//' Pierre Perron's website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
+//' 
 //' @param start Beginning of the segment considered.
 //' @param b1 First possible break date.
 //' @param b2 Last possible break date.
@@ -300,6 +315,8 @@ List parti(int start, int b1, int b2, int last, arma::vec bigvec, int bigt){
 //' Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 //' 
 //' @return A list containing the optimal break date (`dx`) and the associated log-likelihood ratio (`lrmax`).
+//' 
+//' @keywords internal
 //' 
 //' @export
 // [[Rcpp::export]]
@@ -332,10 +349,10 @@ List parti_loglik(int start, int b1, int b2, int last, arma::vec bigvec, int big
 //' @details
 //' Note: This code is an adaptation of the one originally written by Yohei 
 //' Yamamoto and Pierre Perron for MATLAB. Original code files can be found on 
-//' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+//' Pierre Perron's website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
 //' 
-//' @param y A (\code{T x 1}) vector with the endogenous variable.
-//' @param z A (\code{T x q}) matrix with explanatory variables subject to change.
+//' @param y A (T x 1) vector with the endogenous variable.
+//' @param z A (T x q) matrix with explanatory variables subject to change.
 //' @param m An integer determining the number of breaks to find.
 //' @param h An integer determining the minimum length of a regime. 
 //' 
@@ -345,11 +362,11 @@ List parti_loglik(int start, int b1, int b2, int last, arma::vec bigvec, int big
 //' 
 //' @return
 //' A list containing:
-//' \itemize{
-//'   \item \code{glb}: A vector of globally optimal sum of squared residuals (SSR) for each number of breaks.
-//'   \item \code{datevec}: A matrix where each column corresponds to the optimal break dates for a specific number of breaks.
-//'   \item \code{bigvec}: A vector of sum of squared residuals (SSR) for each possible break date.
-//' }
+//'   - `glb`: A vector of globally optimal sum of squared residuals (SSR) for each number of breaks.
+//'   - `datevec`: A matrix where each column corresponds to the optimal break dates for a specific number of breaks.
+//'   - `bigvec`: A vector of sum of squared residuals (SSR) for each possible break date.
+//' 
+//' @keywords internal
 //' 
 //' @export
 // [[Rcpp::export]]
@@ -418,8 +435,10 @@ List dating_purescSSR(arma::vec y, arma::mat z, int m, int h){
 //' This is the main procedure which calculates the break points that globally maximize the log-likelihood function. 
 //' It returns optimal dates and associated log likelihood for all numbers of breaks less than or equal to `m`.
 //' 
-//' @references
-//' Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+//' @details
+//' Note: This code is an adaptation of the one originally written by Yohei 
+//' Yamamoto and Pierre Perron for MATLAB. Original codes can be found on 
+//' Pierre Perron's website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
 //' 
 //' @param bigvec A vector of sum of squared residuals (SSR) for each possible break date.
 //' @param h An integer determining the minimum length of a regime.
@@ -428,10 +447,13 @@ List dating_purescSSR(arma::vec y, arma::mat z, int m, int h){
 //' 
 //' @return
 //' A list containing:
-//' \itemize{
-//'   \item \code{glob}: A vector of globally optimal log likelihood values for each number of breaks.
-//'   \item \code{datevec}: A matrix where each column corresponds to the optimal break dates for a specific number of breaks.
-//' }
+//'   - `glob`: A vector of globally optimal log likelihood values for each number of breaks.
+//'   - `datevec`: A matrix where each column corresponds to the optimal break dates for a specific number of breaks.
+//' 
+//' @references
+//' Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+//' 
+//' @keywords internal
 //' 
 //' @export
 // [[Rcpp::export]]
@@ -496,25 +518,30 @@ List dating_loglik(arma::vec bigvec, int h, int m, int bigt){
 //' This is the main procedure which calculates the break points that globally maximize the log-likelihood function. 
 //' It returns optimal dates and associated log likelihood for all numbers of breaks less than or equal to `m`.
 //' 
-//' @references
-//' Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+//' @details
+//' Note: This code is an adaptation of the one originally written by Yohei 
+//' Yamamoto and Pierre Perron for MATLAB. Original codes can be found on 
+//' Pierre Perron's website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
 //' 
-//' @param y A (\code{T x 1}) vector with the endogenous variable.
-//' @param z A (\code{T x q}) matrix with explanatory variables subject to change.
-//' @param q An integer determining the number of explanatory variables in matrix \code{z}.
-//' @param x A (\code{T x p}) matrix of exogenous variables.
-//' @param p An integer determining the number of exogenous variables in matrix \code{x}.
+//' @param y A (T x 1) vector with the endogenous variable.
+//' @param z A (T x q) matrix with explanatory variables subject to change.
+//' @param q An integer determining the number of explanatory variables in matrix `z`.
+//' @param x A (T x p) matrix of exogenous variables.
+//' @param p An integer determining the number of exogenous variables in matrix `x`.
 //' @param h An integer determining the minimum length of a regime.
 //' @param m An integer determining the number of breaks to find.
 //' @param bigt An integer determining the total number of observations.
 //' 
 //' @return
 //' A list containing:
-//' \itemize{
-//'   \item \code{glob}: A vector of globally optimal negative log likelihood values for each number of breaks.
-//'   \item \code{datevec}: A matrix where each column corresponds to the optimal break dates for a specific number of breaks.
-//'   \item \code{bigvec}: A vector of sum of squared residuals (SSR) for each possible break date.
-//' }
+//'   - `glob`: A vector of globally optimal negative log likelihood values for each number of breaks.
+//'   - `datevec`: A matrix where each column corresponds to the optimal break dates for a specific number of breaks.
+//'   - `bigvec`: A vector of sum of squared residuals (SSR) for each possible break date.
+//' 
+//' @references
+//' Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+//' 
+//' @keywords internal
 //' 
 //' @export
 // [[Rcpp::export]]

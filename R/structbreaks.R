@@ -18,11 +18,8 @@
 #' A numeric matrix representing the estimated parameters of the linear regression model.
 #' 
 #' @references
-#' Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," 
-#' \emph{Econometrica}, vol 66, 47-78.
-#' 
-#' Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," 
-#' \emph{Journal of Applied Econometrics}, 18, 1-22.
+#' Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
+#' Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
 #' 
 #' @examples
 #' # Example usage:
@@ -33,6 +30,8 @@
 #' 
 #' # Estimate parameters using olsqr
 #' parameters <- olsqr(y, x)
+#' 
+#' @keywords internal
 #' 
 #' @export
 olsqr <- function(y, x){
@@ -52,32 +51,29 @@ olsqr <- function(y, x){
 #' and Pierre Perron for MATLAB. Original codes can be found on Pierre Perron's
 #' website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
 #' 
-#' @references
-#' Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," 
-#' \emph{Econometrica}, vol 66, 47-78.
-#' 
-#' Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," 
-#' \emph{Journal of Applied Econometrics}, 18, 1-22.
-#' 
 #' @param Y Numeric vector:  the dependent variable.
 #' @param X Numeric matrix:  the regressors.
 #' @param add_constant Logical: indicating whether to add a constant to X. Default is FALSE.
 #' 
 #' @return
 #' A list containing the following components:
-#' \item{y}{Dependent variable (numeric vector).}
-#' \item{w}{Regressors (numeric matrix).}
-#' \item{coef}{Estimator corresponding to the k regressors (numeric vector).}
-#' \item{SE}{Standard error of the estimator (numeric vector).}
-#' \item{SE_robust}{White robust standard error of the estimator (numeric vector).}
-#' \item{sigma2}{Estimated variance of disturbances (numeric).}
-#' \item{resid}{Residuals series of the regression (numeric vector).}
-#' \item{SSR}{Sum of squared residuals (numeric).}
-#' \item{t_stat}{T-statistics for each coefficient (numeric vector).}
-#' \item{p_val}{P-values for each coefficient (numeric vector).}
-#' \item{R2}{R-squared value (numeric).}
-#' \item{logLike}{Log-likelihood of the model (numeric).}
-#' \item{DW}{Durbin-Watson statistic (numeric).}
+#' -`y`: Dependent variable (numeric vector).
+#' -`w`: Regressors (numeric matrix).
+#' -`coef`: Estimator corresponding to the k regressors (numeric vector).
+#' -`SE`: Standard error of the estimator (numeric vector).
+#' -`SE_robust`: White robust standard error of the estimator (numeric vector).
+#' -`sigma2`: Estimated variance of disturbances (numeric).
+#' -`resid`: Residuals series of the regression (numeric vector).
+#' -`SSR`: Sum of squared residuals (numeric).
+#' -`t_stat`: T-statistics for each coefficient (numeric vector).
+#' -`p_val`: P-values for each coefficient (numeric vector).
+#' -`R2`: R-squared value (numeric).
+#' -`logLike`: Log-likelihood of the model (numeric).
+#' -`DW`: Durbin-Watson statistic (numeric).
+#' 
+#' @references
+#' Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
+#' Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
 #' 
 #' @examples
 #' # Example usage:
@@ -88,6 +84,8 @@ olsqr <- function(y, x){
 #' 
 #' # Estimate parameters using OLS with White robust standard errors
 #' result <- OLS(Y, X, add_constant = TRUE)
+#' 
+#' @keywords internal
 #' 
 #' @export
 OLS <- function(Y, X, add_constant){
@@ -169,19 +167,18 @@ OLS <- function(Y, X, add_constant){
 #' and Pierre Perron for MATLAB. Original codes can be found on Pierre Perron's
 #' website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
 #' 
-#' @references
-#' Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," 
-#' \emph{Econometrica}, vol 66, 47-78.
-#' 
-#' Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," 
-#' \emph{Journal of Applied Econometrics}, 18, 1-22.
-#' 
 #' @param zz Numeric matrix:  the observations.
 #' @param m Integer: indicating the number of breaks.
 #' @param bb Numeric matrix: the break dates.
 #' 
 #' @return
 #' A numeric matrix representing the diagonal partition of z with m breaks at date b.
+#' 
+#' @references
+#' Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
+#' Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
+#' 
+#' @keywords internal
 #' 
 #' @export
 pzbar <- function(zz, m, bb){
@@ -206,15 +203,17 @@ pzbar <- function(zz, m, bb){
 #' This function tests if a square matrix A is positive definite.
 #' A must be a square matrix.
 #' 
+#' @param A Numeric matrix: matrix to be tested for positive definiteness.
+#' 
+#' @return
+#' A logical value indicating whether the matrix is positive definite.
+#' 
 #' @references
 #' Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020),
 #' "Testing Jointly for Structural Changes in the Error Variance and Coefficients
 #' of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 #' 
-#' @param A Numeric matrix: matrix to be tested for positive definiteness.
-#' 
-#' @return
-#' A logical value indicating whether the matrix is positive definite.
+#' @keywords internal
 #' 
 #' @export
 isposdef <- function(A){
@@ -246,18 +245,18 @@ isposdef <- function(A){
 #' @description Computes the inverse of a positive definite matrix. If the matrix is not
 #' positive definite, it regularizes it and then computes the inverse.
 #' 
+#' @param x Numeric matrix: A square matrix.
+#' 
+#' @return A list containing:
+#'   - `xinv`: The inverse of the matrix x.
+#'   - `flag`: A flag indicating if the original matrix was positive definite 
+#'         (flag = 0) or if regularization was applied (flag = 1).
+#' 
 #' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for 
 #' Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" 
 #' \emph{Quantitative Economics}, vol 11, 1019-1057.
 #' 
-#' @param x Numeric matrix: A square matrix.
-#' 
-#' @return A list containing:
-#' \itemize{
-#'   \item \code{xinv}: The inverse of the matrix \code{x}.
-#'   \item \code{flag}: A flag indicating if the original matrix was positive definite 
-#'         (flag = 0) or if regularization was applied (flag = 1).
-#' }
+#' @keywords internal
 #' 
 #' @export
 invpd <- function(x){
@@ -278,27 +277,25 @@ invpd <- function(x){
 
 
 
-
-
 #' @title Number of Cases Given Breaks
 #' 
 #' @description Determine Number of Cases to Check Given the Number of Breaks in Mean or Variance
 #' 
-#' @details Replaces \code{brcvcase()} and \code{numcase()} in the original MATLAB code.
-#' 
-#' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for 
-#' Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" 
-#' \emph{Quantitative Economics}, vol 11, 1019-1057.
+#' @details Replaces `brcvcase()` and `numcase()` in the original MATLAB code.
 #' 
 #' @param m Integer: Number of breaks in the mean.
 #' @param n Integer: Number of breaks in the variance.
 #' 
 #' @return A list containing:
-#' \itemize{
-#'   \item \code{num}: The number of cases to consider.
-#'   \item \code{cvbrind}: A list of matrices representing cases to check given the breaks 
-#'         in mean (\code{m}) and breaks in variance (\code{n}).
-#' }
+#' -`num`: The number of cases to consider.
+#' -`cvbrind`: A list of matrices representing cases to check given the breaks 
+#'         in mean (`m`) and breaks in variance (`n`).
+#' 
+#' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for 
+#' Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" 
+#' \emph{Quantitative Economics}, vol 11, 1019-1057.
+#' 
+#' @keywords internal
 #' 
 #' @export
 numcase2 <- function(m,n){
@@ -329,7 +326,6 @@ numcase2 <- function(m,n){
       expP[,2]
     )
     tmpls <- unique(M_all)
-    
     
     # Cases with some overlap
     overlap_count <- 1
@@ -365,18 +361,20 @@ numcase2 <- function(m,n){
 
 #' @title Compute Quadratic Kernel
 #' 
-#' @description This function computes the quadratic kernel at a given value \code{x}.
+#' @description This function computes the quadratic kernel at a given value `x`.
 #' 
 #' @details Note: This code is an adaptation of the one originally written by Yohei 
 #' Yamamoto and Pierre Perron for MATLAB. Original codes can be found on 
-#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' Pierre Perron's website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
+#' 
+#' @param x Value at which to evaluate the quadratic kernel.
+#' 
+#' @return The value of the quadratic kernel at the given `x`.
 #' 
 #' @references Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
 #' @references Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
 #' 
-#' @param x Value at which to evaluate the quadratic kernel.
-#' 
-#' @return The value of the quadratic kernel at the given \code{x}.
+#' @keywords internal
 #' 
 #' @export
 kern <- function(x){
@@ -389,11 +387,13 @@ kern <- function(x){
 
 #' @title Bartlett Kernel
 #' 
-#' @description This function computes the Bartlett kernel at a given value \code{x}.
+#' @description This function computes the Bartlett kernel at a given value `x`.
 #' 
 #' @param x Value at which to evaluate the Bartlett kernel.
 #' 
-#' @return The value of the Bartlett kernel at the given \code{x}.
+#' @return The value of the Bartlett kernel at the given `x`.
+#' 
+#' @keywords internal
 #' 
 #' @export
 bartlett_kern <- function(x){
@@ -412,7 +412,9 @@ bartlett_kern <- function(x){
 #' @param x Value at which to evaluate the kernel.
 #' @param type String: Type of kernel to use. Options include "quadratic" and "bartlett".
 #' 
-#' @return The value of the specified kernel at the given \code{x}.
+#' @return The value of the specified kernel at the given `x`.
+#' 
+#' @keywords internal
 #' 
 #' @export
 kernMain <- function(x, type = "quadratic"){
@@ -427,7 +429,7 @@ kernMain <- function(x, type = "quadratic"){
 #' @title Bandwidth Based on AR(1) Approximation
 #' 
 #' @description This function computes the automatic bandwidth based on AR(1)
-#' approximation for each vector of the matrix \code{vhat}. Each vector is given equal weight (weight = 1).
+#' approximation for each vector of the matrix `vhat`. Each vector is given equal weight (weight = 1).
 #' 
 #' @details Note: This code is an adaptation of the one originally written by Yohei 
 #' Yamamoto and Pierre Perron for MATLAB. Original codes can be found on 
@@ -439,6 +441,8 @@ kernMain <- function(x, type = "quadratic"){
 #' 
 #' @references Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
 #' @references Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
+#' 
+#' @keywords internal
 #' 
 #' @export
 bandw <- function(vhat){
@@ -464,7 +468,7 @@ bandw <- function(vhat){
 
 #' @title Compute Robust Standard Errors for the `correct1()` Function
 #' 
-#' @description This function computes the long-run covariance matrix of \code{vmat} and applies a small sample correction.
+#' @description This function computes the long-run covariance matrix of `vmat` and applies a small sample correction.
 #' 
 #' @param vmat Numeric matrix: Matrix for which the long-run covariance matrix is computed.
 #' @param vmata Numeric matrix: Matrix used for bandwidth selection.
@@ -473,6 +477,8 @@ bandw <- function(vhat){
 #' @return The computed long-run covariance matrix with small sample correction.
 #' 
 #' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+#' 
+#' @keywords internal
 #' 
 #' @export
 jhatpr1 <- function(vmat,vmata,kerntype){
@@ -513,6 +519,8 @@ jhatpr1 <- function(vmat,vmata,kerntype){
 #' @return Robust standard errors for the joint test of structural changes.
 #' 
 #' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+#' 
+#' @keywords internal
 #' 
 #' @export
 correct1 <- function(vmat, vmata, prewhit, typekb, kerntype){
@@ -557,7 +565,7 @@ correct1 <- function(vmat, vmata, prewhit, typekb, kerntype){
 #' 
 #' @details Note: This code is an adaptation of the one originally written by Yohei 
 #' Yamamoto and Pierre Perron for MATLAB. Original codes can be found on 
-#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' Pierre Perron's website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
 #' 
 #' @param b Numeric matrix: Matrix of breakpoints.
 #' @param m Integer: Number of breakpoints.
@@ -568,6 +576,8 @@ correct1 <- function(vmat, vmata, prewhit, typekb, kerntype){
 #' @references Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
 #' @references Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
 #' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+#' 
+#' @keywords internal
 #' 
 #' @export
 plambda <- function(b, m, Tsize){
@@ -593,6 +603,8 @@ plambda <- function(b, m, Tsize){
 #' @return A list containing the log likelihood and tao values.
 #' 
 #' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+#' 
+#' @keywords internal
 #' 
 #' @export
 ploglik <- function(res,n,brv){
@@ -627,18 +639,18 @@ ploglik <- function(res,n,brv){
 #' @details
 #' Note: This code is an adaptation of the one originally written by Yohei 
 #' Yamamoto and Pierre Perron for MATLAB. Original codes can be found on 
-#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' Pierre Perron's website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
+#' 
+#' @return
+#' A list containing:
+#' -`glob`: Numeric matrix, the global break dates.
+#' -`datevec`: Numeric matrix, the dates corresponding to each break.
+#' -`bigvec`: Numeric matrix, the result of the iterative algorithm.
+#' -`convergence_msg`: Character, a message indicating whether the algorithm converged or reached the maximum iterations.
 #' 
 #' @references
 #' Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
 #' Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
-#' 
-#' @return
-#' A list containing:
-#' \item{glob}{Numeric matrix: the global break dates.}
-#' \item{datevec}{Numeric matrix: the dates corresponding to each break.}
-#' \item{bigvec}{Numeric matrix: the result of the iterative algorithm.}
-#' \item{convergence_msg}{Character: a message indicating whether the algorithm converged or reached the maximum iterations.}
 #' 
 #' @examples
 #' # Example usage:
@@ -646,6 +658,7 @@ ploglik <- function(res,n,brv){
 #' 
 #' @seealso
 #' \code{\link{dating_purescSSR}}, \code{\link{pzbar}}, \code{\link{olsqr}}
+#' 
 #' 
 #' @export
 dating_partscSSR <- function(y, z, x, m, h, thtol = 1e-6, maxi = 10000){
@@ -710,15 +723,17 @@ dating_partscSSR <- function(y, z, x, m, h, thtol = 1e-6, maxi = 10000){
 #' @param q Integer: the number of coefficients.
 #' @param m Integer: the number of structural breaks.
 #' 
-#' @references
-#' Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
-#' 
 #' @return
 #' A matrix containing the bigvec of residuals.
+#' 
+#' @references
+#' Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 #' 
 #' @examples
 #' # Example usage:
 #' # bigvec_residuals(y, z, b, q, m)
+#' 
+#' @keywords internal
 #' 
 #' @export
 bigvec_residuals <- function(y,z,b,q,m){
@@ -743,18 +758,20 @@ bigvec_residuals <- function(y,z,b,q,m){
 #' @param vbrind Numeric vector: indicator vector for variance breaks.
 #' @param q Integer: number of coefficients.
 #'
-#' @references
-#' Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
-#'
 #' @return
 #' A list containing:
-#' \item{brc}{Numeric matrix: matrix of coefficient breaks.}
-#' \item{brv}{Numeric matrix: matrix of variance breaks.}
-#' \item{R}{Numeric matrix: matrix used for testing joint structural changes.}
+#' -`brc`: Numeric matrix, matrix of coefficient breaks.
+#' -`brv`: Numeric matrix, matrix of variance breaks.
+#' -`R`: Numeric matrix, matrix used for testing joint structural changes.
+#'
+#' @references
+#' Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 #' 
 #' @examples
 #' # Example usage:
 #' # segmake(K, brk, m, n, cbrind, vbrind, q)
+#' 
+#' @keywords internal
 #' 
 #' @export
 segmake <- function(K,brk,m,n,cbrind,vbrind,q){
@@ -803,17 +820,18 @@ segmake <- function(K,brk,m,n,cbrind,vbrind,q){
 #' @param brv Numeric vector: vector of variance breaks.
 #' @param rest Integer: indicator for whether to restrict or not.
 #'
+#' @return
+#' A list containing:
+#' -`nbeta`: Numeric matrix, estimated coefficients.
+#' -`res`: Numeric matrix, residuals.
+#' 
 #' @references
 #' Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 #'
-#' @return
-#' A list containing:
-#' \item{nbeta}{Numeric matrix: estimated coefficients.}
-#' \item{res}{Numeric matrix: residuals.}
-#' 
 #' @examples
 #' # Example usage:
 #' # estimbr(y, z, q, x, p, bigt, K, brk, R, n, brv, rest)
+#' 
 #' 
 #' @export
 estimbr <- function(y,z,q,x,p,bigt,K,brk,R,n,brv,rest){
@@ -889,16 +907,16 @@ estimbr <- function(y,z,q,x,p,bigt,K,brk,R,n,brv,rest){
 #' @param cbrind Numeric vector: indicator vector for coefficient breaks.
 #' @param vbrind Numeric vector: indicator vector for variance breaks.
 #'
-#' @references
-#' Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
-#'
 #' @return
 #' A list containing:
-#' \item{brk}{Numeric matrix: estimated break dates.}
-#' \item{beta}{Numeric matrix: estimated coefficients.}
-#' \item{brc}{Numeric matrix: matrix of coefficient breaks.}
-#' \item{brv}{Numeric matrix: matrix of variance breaks.}
-#' \item{res}{Numeric matrix: residuals.}
+#' -`brk`: Numeric matrix, estimated break dates.
+#' -`beta`: Numeric matrix, estimated coefficients.
+#' -`brc`: Numeric matrix, matrix of coefficient breaks.
+#' -`brv`: Numeric matrix, matrix of variance breaks.
+#' -`res`: Numeric matrix, residuals.
+#'
+#' @references
+#' Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 #'
 #' @examples
 #' # Example usage:
@@ -952,13 +970,15 @@ estdate <- function(y,z,q,x,p,K,bigt,h,m,n,cbrind,vbrind){
 #' 
 #' @param vmat Numeric matrix: the input matrix for which the long-run covariance matrix is to be computed.
 #' 
+#' @return
+#' A numeric matrix representing the long-run covariance matrix of the input matrix.
+#'
 #' @references
 #' Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
 #' Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
 #'
-#' @return
-#' A numeric matrix representing the long-run covariance matrix of the input matrix.
-#'
+#' @keywords internal
+#' 
 #' @export
 jhatpr <- function(vmat){
   # procedure to compute the long-run covariance matrix of vmat.  
@@ -992,19 +1012,21 @@ jhatpr <- function(vmat){
 #' @details
 #' Note: This code is an adaptation of the one originally written by Yohei 
 #' Yamamoto and Pierre Perron for MATLAB. Original codes can be found on 
-#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' Pierre Perron's website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
 #' 
 #' @param reg Numeric matrix: the regression matrix.
 #' @param res Numeric vector: the residuals vector.
 #' @param prewhit Integer: indicator for prewhitening. If set to 1, prewhitening is applied; otherwise, it is skipped.
 #'
+#' @return
+#' A numeric matrix representing the robust standard errors.
+#'
 #' @references
 #' Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
 #' Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
 #'
-#' @return
-#' A numeric matrix representing the robust standard errors.
-#'
+#' @keywords internal
+#' 
 #' @export
 correct <- function(reg, res, prewhit){
   # main procedures which activates the computation of robust standard errors  
@@ -1046,7 +1068,7 @@ correct <- function(reg, res, prewhit){
 #' @details
 #' Note: This code is an adaptation of the one originally written by Yohei 
 #' Yamamoto and Pierre Perron for MATLAB. Original codes can be found on 
-#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' Pierre Perron's website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
 #' 
 #' @param res Numeric vector: the residuals vector.
 #' @param b Numeric matrix: the break dates matrix.
@@ -1054,13 +1076,15 @@ correct <- function(reg, res, prewhit){
 #' @param i Integer: the segment index.
 #' @param nt Integer: the total number of observations.
 #' 
+#' @return
+#' A diagonal matrix of dimension i+1 with the ith entry being the estimate of the variance of the residuals for segment i.
+#'
 #' @references
 #' Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
 #' Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
 #' 
-#' @return
-#' A diagonal matrix of dimension i+1 with the ith entry being the estimate of the variance of the residuals for segment i.
-#'
+#' @keywords internal
+#' 
 #' @export
 psigmq <- function(res, b, q, i, nt){
   # procedure that computes a diagonal matrix of dimension i+1 with ith entry
@@ -1085,7 +1109,7 @@ psigmq <- function(res, b, q, i, nt){
 #' @details
 #' Note: This code is an adaptation of the one originally written by Yohei 
 #' Yamamoto and Pierre Perron for MATLAB. Original codes can be found on 
-#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' Pierre Perron's website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
 #' 
 #' @param y Numeric vector: the dependent variable.
 #' @param z Numeric matrix: the matrix of regressors.
@@ -1112,6 +1136,8 @@ psigmq <- function(res, b, q, i, nt){
 #' @references
 #' Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
 #' Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
+#' 
+#' @keywords internal
 #' 
 #' @export
 pvdel <- function(y, z, i, q, Tsize, b, prewhit, robust, 
@@ -1238,6 +1264,8 @@ pvdel <- function(y, z, i, q, Tsize, b, prewhit, robust,
 #'
 #' @return The computed p-value
 #'
+#' @keywords internal
+#' 
 #' @export
 funcg <- function(x,bet,alph,b,deld,gam){
   if (x <= 0){
@@ -1265,6 +1293,11 @@ funcg <- function(x,bet,alph,b,deld,gam){
 #' @description
 #' The function `cvg` is used to determine critical values for the break dates, which are essential for
 #' constructing confidence intervals around the estimated break dates.
+#' 
+#' @details
+#' The critical values are computed using an iterative procedure to find the values at specific
+#' significance levels (0.025, 0.05, 0.95, 0.975) for constructing confidence intervals around break dates.
+#' The iterative process involves the function `funcg`.
 #'
 #' @param eta A numeric value representing the ratio of variances.
 #' @param phi1s A numeric value representing a parameter.
@@ -1272,11 +1305,8 @@ funcg <- function(x,bet,alph,b,deld,gam){
 #'
 #' @return A matrix containing critical values for confidence intervals at specified significance levels.
 #'
-#' @details
-#' The critical values are computed using an iterative procedure to find the values at specific
-#' significance levels (0.025, 0.05, 0.95, 0.975) for constructing confidence intervals around break dates.
-#' The iterative process involves the function `funcg`.
-#'
+#' @keywords internal
+#' 
 #' @export
 cvg <- function(eta,phi1s,phi2s){
   cvec <- matrix(0, 4, 1)
@@ -1350,6 +1380,8 @@ cvg <- function(eta,phi1s,phi2s){
 #' Bai, Jushan & Pierre Perron (1998), "Estimating and Testing Linear Models with Multiple Structural Changes," \emph{Econometrica}, vol 66, 47-78.
 #' Bai, Jushan & Pierre Perron (2003), "Computation and Analysis of Multiple Structural Change Models," \emph{Journal of Applied Econometrics}, 18, 1-22.
 #'
+#' @keywords internal
+#' 
 #' @export
 interval <- function(y,z,zbar,b,q,m,robust,prewhit,hetomega,hetq,x,p){
   cvf <- matrix(0, 4, 1)
@@ -1449,7 +1481,7 @@ interval <- function(y,z,zbar,b,q,m,robust,prewhit,hetomega,hetq,x,p){
 #' The function uses the `OLS` and `pvdel` functions to estimate the model and calculate corrected standard errors,
 #' respectively. Confidence intervals are determined using the `interval` function. Note: This code is an adaptation of the one originally written by Yohei 
 #' Yamamoto and Pierre Perron for MATLAB. Original codes can be found on 
-#' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
+#' Pierre Perron's website: [Pierre Perron Codes](https://blogs.bu.edu/perron/codes/)
 #'
 #' @param y A matrix or vector representing the dependent variable.
 #' @param z A matrix representing the regressor matrix.
@@ -1521,6 +1553,8 @@ estim <- function(y,z,x,m,b,robust,prewhit,hetomega,hetq,hetdat,hetvar){
 #' @references
 #' Bai, J. and Perron, P. (2003), Critical values for multiple structural change tests. \emph{The Econometrics Journal}, 6: 72-78. https://doi.org/10.1111/1368-423X.00102
 #'
+#' @keywords internal
+#' 
 #' @export
 getcv <- function(alpha, q, k, eps){
   if (alpha == 0.1){
@@ -1564,6 +1598,8 @@ getcv <- function(alpha, q, k, eps){
 #' @references
 #' Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 #'
+#' @keywords internal
+#' 
 #' @export
 getcv4 <- function(alpha, q, trm){
   
@@ -3197,6 +3233,8 @@ getcv4 <- function(alpha, q, trm){
 #' @references
 #' Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
 #'
+#' @keywords internal
+#' 
 #' @export
 getdmax4 <- function(alpha, q, trm, M, N){
   

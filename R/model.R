@@ -1,9 +1,35 @@
 
+
 #' @title Determine number of breaks & dates
 #' 
-#' @description This function determines the number of break and their dates using sequential and UDmax procedures. 
+#' @description This function determines the number of breaks and their dates using sequential and UDmax procedures.
 #' 
-#' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+#' @param y Numeric vector: the endogenous variable.
+#' @param M Integer: the maximum number of breaks in coefficients.
+#' @param N Integer: the maximum number of breaks in variance.
+#' @param z Numeric matrix: explanatory variables subject to change.
+#' @param x Numeric matrix: additional explanatory variables that are not subject to change.
+#' @param con List: containing control parameters for the tests.
+#'   - `robust`: A logical indicating whether robust standard errors should be used in testing.
+#'   - `prewhit`: A logical indicating whether to prewhiten the data.
+#'   - `typekbc`: A character string specifying the type of kernel for the coefficients tests.
+#'   - `typekbv`: A character string specifying the type of kernel for the variance tests.
+#'   - `kerntype`: A character string specifying the kernel type for the variance tests.
+#'   - `alpha`: The significance level for the tests.
+#'   - `trm`: A logical indicating whether to compute the test using the trend-removed series.
+#'   - `vrobust`: A logical indicating whether robust standard errors should be used for variance tests.
+#' 
+#' @return List: with the following components:
+#'   - `m`: An integer specifying the number of breaks in coefficients.
+#'   - `n`: An integer specifying the number of breaks in variance.
+#'   - `brcdt`: A numeric vector containing the dates of breaks in coefficients (if any).
+#'   - `brvdt`: A numeric vector containing the dates of breaks in variance (if any).
+#'   - `supLRT`: The supremum of the LR tests for the chosen model.
+#'   - `cv`: The critical values for the LR tests.
+#' 
+#' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly 
+#' for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" 
+#' \emph{Quantitative Economics}, vol 11, 1019-1057.
 #' 
 #' @export
 determineBreaks <- function(y, M, N, z, x, con){
@@ -147,35 +173,63 @@ determineBreaks <- function(y, M, N, z, x, con){
 
 
 
-
-
-#' @title Estimate model 
+#' @title Estimate model with structural breaks
 #' 
-#' @description Model estimation with known or unknown breaks
-#' 
-#' @param y A (\code{T x 1}) vector with endogenous variable.
-#' @param z A (\code{T x q}) matrix with explanatory variables subject to change.
-#' @param m An integer determining the number of breaks in coefficients.
-#' @param n An integer determining the number of breaks in variance.
-#' @param control List with options which include
-#' \itemize{
-#'   \item{\code{robust}: }{set to 1 if want to allow for heterogeneity and autocorrelation in the residuals, 0 otherwise. The method used is Andrews(1991) automatic bandwidth with AR(1) approximation and the quadratic kernel. Note: Do not set to 1 if lagged dependent variables are included as regressors. Default is \code{TRUE}.}
-#'   \item{\code{prewhit}: }{set to 1 if want to apply AR(1) prewhitening prior to estimating the long run covariance matrix. Default is \code{TRUE}.}
-#'   \item{\code{hetdat}: }{option for the construction of the F tests. Set to 1 if want to allow different moment matrices of the regressors across segments. If hetdat=0, the same moment matrices are assumed for each segment and estimated from the ful sample. It is recommended to set hetdat=1 if p>0. Default is \code{TRUE}.}
-#'   \item{\code{hetvar}: }{option for the construction of the F tests.Set to 1 if want to allow for the variance of the residuals to be different across segments. If hetvar=0, the variance of the residuals is assumed constant across segments and constructed from the ful sample. This option is not available when robust=1. Default is \code{TRUE}.}
-#'   \item{\code{hetomega}: }{used in the construction of the confidence intervals for the break dates. If hetomega=0, the long run covariance matrix of zu is assumed identical across segments (the variance of the errors u if robust=0). Default is \code{TRUE}.}
-#'   \item{\code{hetq}: }{used in the construction of the confidence intervals for the break dates. If hetq=0, the moment matrix of the data is assumed identical across segments. Default is \code{TRUE}.}
-#'   \item{\code{doglobal}: }{set to 1 if want to cal the procedure to obtain global minimizers. Default is \code{TRUE}.}
-#'   \item{\code{hetomega}: }{used in the construction of the confidence intervals for the break dates. If hetomega=0, the long run covariance matrix of zu is assumed identical across segments (the variance of the errors u if robust=0Default is \code{TRUE}.}
-#'   \item{\code{hetq}: }{used in the construction of the confidence intervals for the break dates. If hetq=0, the moment matrix of the data is assumed identical across segments. Default is \code{TRUE}.}
-#'   \item{\code{}: }{Default is \code{TRUE}.}
-#' }
+#' @description Model estimation with known or unknown breaks dates.
 #' 
 #' @details Note: This code is a translation of the one originally written by Pierre 
 #' Perron and Yohei Yamamoto for MATLAB. Original code files can be found on 
 #' Pierre Perron's website: https://blogs.bu.edu/perron/codes/
 #' 
-#' @references Perron, Pierre, Yohei Yamamoto, and Jing Zhou (2020), "Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model" \emph{Quantitative Economics}, vol 11, 1019-1057.
+#' @param y Numeric matrix: A (T x 1) matrix with endogenous variable.
+#' @param m Integer: An integer determining the number of breaks in coefficients.
+#' @param n Integer: An integer determining the number of breaks in variance.
+#' @param z Numeric matrix: A (T x q) matrix with explanatory variables subject to change.
+#' @param x Numeric matrix: A (T x p) matrix with additional explanatory variables.
+#' @param control List: List with options:
+#'   - `robust`: Set to TRUE if you want to allow for heterogeneity 
+#'     and autocorrelation in the residuals, FALSE otherwise. The method used is 
+#'     Andrews (1991) automatic bandwidth with AR(1) approximation and the quadratic kernel. 
+#'     Note: Do not set to TRUE if lagged dependent variables are included as regressors. 
+#'     Default is TRUE.
+#'   - `prewhit`: Set to TRUE if you want to apply AR(1) prewhitening 
+#'     prior to estimating the long-run covariance matrix. Default is FALSE.
+#'   - `hetdat`: Option for the construction of the F tests. Set to TRUE 
+#'     if you want to allow different moment matrices of the regressors across segments. 
+#'     If hetdat=FALSE, the same moment matrices are assumed for each segment and 
+#'     estimated from the full sample. It is recommended to set hetdat=TRUE if p>0. 
+#'     Default is TRUE.
+#'   - `hetvar`: Option for the construction of the F tests. Set to TRUE 
+#'     if you want to allow for the variance of the residuals to be different across segments. 
+#'     If hetvar=FALSE, the variance of the residuals is assumed constant across segments 
+#'     and constructed from the full sample. This option is not available when robust=TRUE. 
+#'     Default is TRUE.
+#'   - `hetomega`: Used in the construction of the confidence intervals for the break dates. 
+#'     If hetomega=TRUE, the long-run covariance matrix of zu is assumed identical 
+#'     across segments (the variance of the errors u if robust=FALSE). Default is TRUE.
+#'   - `hetq`: Used in the construction of the confidence intervals for the break dates. 
+#'     If hetq=TRUE, the moment matrix of the data is assumed identical across segments. 
+#'     Default is TRUE.
+#'   - `doglobal`: Set to TRUE if you want to call the procedure to obtain global minimizers. 
+#'     Default is TRUE.
+#'   - `kerntype`: The type of kernel for the variance tests. Default is "quadratic".
+#'   - alpha: The significance level for the tests. Default is NULL.
+#' 
+#' @return An object of class "mdl" containing the following components:
+#'   - `y`: A (T x 1) matrix with the endogenous variable.
+#'   - `z`: A (T x q) matrix with explanatory variables subject to change.
+#'   - `x`: A (T x p) matrix with additional explanatory variables.
+#'   - `beta`: The estimated coefficients.
+#'   - `stdev`: The standard deviations.
+#'   - `brk`: The break dates.
+#'   - `brc`: The breaks in coefficients.
+#'   - `brv`: The breaks in variance.
+#'   - `res`: The residuals.
+#'   - `control`: The control parameters used for the estimation.
+#'   - `m`: An integer specifying the number of breaks in coefficients.
+#'   - `n`: An integer specifying the number of breaks in variance.
+#'   - `supLRT`: The supremum of the LR tests for the chosen model.
+#'   - `cv`: The critical values for the LR tests.
 #' 
 #' @export
 estimdl <- function(y, m, n, z, x = matrix(0,0,0), control = list()){
