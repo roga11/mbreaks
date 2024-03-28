@@ -1,0 +1,239 @@
+---
+title: "Perron, Yamamoto, and Zhou (2020) Quantitative Economics: Table 13"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{PYZ2020Tabs}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+
+## Load real interest data
+
+The first step is to load the `mbreaks` `R`-package.  
+```{r setup}
+library(mbreaks)
+```
+
+The package includes the US ex-post real interest rate quarterly series from 1961:1–1986:3 that was used in PYZ (2020). Once it is loaded, we can save this real interest rate data in our environment as a column matrix under the variable name `yint`. 
+
+```{r}
+yint <- as.matrix(mbreaks::rint)
+```
+
+The data does not include a date column and so here we use `R` to generate a date vector. We also change the date format so that it is the same as the format used to display dates in the paper. 
+
+```{r}
+yint_date <- seq(as.Date("1961-01-01"), by="quarter", length.out = nrow(yint))
+yint_date <- gsub("-01-01",":1",yint_date)
+yint_date <- gsub("-04-01",":2",yint_date)
+yint_date <- gsub("-07-01",":3",yint_date)
+yint_date <- gsub("-10-01",":4",yint_date)
+
+```
+
+
+## Reproduce table 13
+
+To start, we set the maximum number of breaks in mean, $M=3$, and the maximum number of breaks in variance, $N=2$, that we will consider throughout. 
+
+```{r}
+M = 3   # Max number of breaks in mean
+N = 2   # Max number of breaks in variance
+```
+Next, we will consider each panel of table 13 separately. 
+
+
+### Table 13 a) Tests for structural changes in mean and/or variance
+
+The first three columns of table 13 panel a) includes results for the joint test for structural changes in mean and/or variance. Namely, this is the $\text{sup}LR_{4,T}$ test described in PYZ(2020). In the `R`-package `mbreaks` this test is performed by using the function `pslr4()`. Below, we use for loops to obtain the results of this joint test for different numbers of structural breaks in the mean and variance of the US real interest rate.
+
+```{r}
+tab13_a <- matrix(0, N, M+1)
+
+for (xm in 1:M){
+  for (xn in 1:N){
+    pslr4_out <- mbreaks::pslr4(yint, m = xm, n = xn, trm = 0.1, z = matrix(1,length(yint),1))
+    tab13_a[xn,xm] <- round(pslr4_out$suplr,2)
+  }
+}
+```
+
+The next and final column of table 13 a) includes results from the `UDmax` version of the $\text{sup}LR_{4,T}$ test, namely, $UD\text{max}LR_{4,T}$. Below, we perform this test using the function `pslr8()` from the `mbreaks` `R`-package. 
+
+```{r}
+pslr8_out <- mbreaks::pslr8(yint, M = M, N = N, trm = 0.1, z = matrix(1,length(yint),1))
+tab13_a[1,M+1] <- round(pslr8_out$UDmaxLRT,2)
+```
+
+Finally, we set the column and row names of our table 13 a) to resemble those of the table provided in PYZ (2020) and display this panel here. 
+
+```{r}
+tab13_a <- data.frame(tab13_a)
+tab13_a[tab13_a==0]=""
+colnames(tab13_a) <- c("$m_a=1$","$m_a=2$","$m_a=3$","$M=3$,$N=2$")
+rownames(tab13_a) <- c("$n_a=1$","$n_a=2$")
+
+knitr::kable(tab13_a, caption = "Table 13 a) Tests for structural changes in mean and/or variance")
+```
+
+
+### Table 13 b) Tests for structural changes in mean
+
+The first three columns of table 13 panel b) includes results for the test for structural changes in mean given a fixed number of structural changes in variance. Namely, this is the $\text{sup}LR_{3,T}$ test described in PYZ(2020). In the `mbreaks` `R`-package this test is performed by using the function `pslr3()`. When using this function, while setting $n=0$, then the function `pslr0()` is used, which performs the test for multiple structural breaks in mean (and no breaks in variance) of Bai \& Perron (1998). Below, we use for loops to obtain the results of this test for different numbers of structural breaks in the mean while conditioning on different number of variance.
+
+```{r}
+tab13_b <- matrix(0, N+1, 2*M+1)
+
+for (xm in 1:M){
+  for (xn in 0:N){
+    pslr3_out <- mbreaks::pslr3(yint, m = xm, n = xn, trm = 0.1, z = matrix(1,length(yint),1))
+    tab13_b[(xn+1),xm] <- round(pslr3_out$suplr,2)
+  }
+}
+
+```
+
+The next column contains results for the `UDmax` version of the $\text{sup}LR_{3,T}$ test, namely, $UD\text{max}LR_{3,T}$. Below, we perform this test using the function `pslr7()` from the `mbreaks` `R`-package. This function only allows the user to specify a value $n\geq1$ and so for the case when $n=0$, we use the `pslr00()` function, which is the `UDmax` test for $0$ vs. $M$ breaks in mean when $n=0$ (i.e., no breaks in the variance).
+
+```{r}
+pslr00_out <- mbreaks::pslr00(yint, M = M, trm = 0.1, z = matrix(1,length(yint),1))
+tab13_b[1,M+1] <- round(pslr00_out$UDmaxLRT,2)
+
+for (xn in 1:N){
+  pslr7_out <- mbreaks::pslr7(yint, M = M, n = xn, trm = 0.1, z = matrix(1,length(yint),1))
+  tab13_b[(xn+1),(M+1)] <- round(pslr7_out$UDmaxLRT,2)
+}
+```
+
+The following three columns contain results for the sequential test for $m$ strutural changes in the mean versus $m + 1$ strutural changes in the mean, given $n$ structural changes in variance. Namely, this is the $\text{sup}Seq_{9,T}$ test described in PYZ(2020). In the `mbreaks` `R`-package this test is performed by using the function `pslr9()`. When using this function, the value specified for $m$ is the value to be tested under the null hypothesis. That is, if we use $m=1$ as an input in `pslr9()` then we are testing $H_0: m=1$ versus $H_1: m=2$. Below, we again use for loops to obtain the results of this test for different numbers of structural breaks in the mean while conditioning on different number of structural chnages in variance.
+
+```{r}
+for (xm in 1:M){
+  for (xn in 0:N){
+    pslr9_out <- mbreaks::pslr9(yint, m = xm, n = xn, trm = 0.1, z = matrix(1,length(yint),1))
+    tab13_b[(xn+1),(M+xm+1)] <- round(pslr9_out$supSeq,2)
+  }
+}
+
+```
+
+The last two columns of table 13 panel b) contain the break dates. The sequential procedure suggests there are two structural changes in the mean for all different values of $n$ considered and so here we use the `pslr3()` function while setting the number of structural changes in the mean $m=2$ and changing values of $n$ so that we obtain globally optimal break dates. The function `pslr3()` returns the indices for the break dates. These indices are then used in the date vector previously generated to obtain break dates. 
+
+```{r}
+xm <- 2
+tab13_b_dates <- matrix("",N+1,xm)
+
+for (xn in 0:N){
+  pslr3_out <- mbreaks::pslr3(yint, m = xm, n = xn, trm = 0.1, z = matrix(1,length(yint),1))
+  tab13_b_dates[(xn+1),1:xm] <- as.character(yint_date[pslr3_out$brcstar])
+}
+```
+
+As with the previous panel, we now set the column and row names of our table 13 b) to resemble those of the table provided in PYZ (2020) and display this panel here.
+
+```{r}
+tab13_b <- data.frame(cbind(tab13_b,tab13_b_dates))
+colnames(tab13_b) <- c("$m_a=1$","$m_a=2$","$m_a=3$","$M=3$","$m_a=1$","$m_a=2$","$m_a=3$","break","dates")
+rownames(tab13_b) <- c("$n_a=0$","$n_a=1$","$n_a=2$")
+
+knitr::kable(tab13_b, caption = "Table 13 b) Tests for structural changes in mean")
+
+```
+
+
+### Table 13 c) Tests for structural changes in variance
+
+The first two columns of table 13 panel c) includes results for the test for structural changes in variance given a fixed number of structural changes in mean. Namely, this is the $\text{sup}LR_{2,T}$ test described in PYZ(2020). In the `mbreaks` `R`-package this test is performed by using the function `pslr2()`. However, this function only allows the user to specify $m\geq1$. When considering $m=0$, we instead work with the $\text{sup}LR_{1,T}$ test described in PYZ(2020) by using the function `pslr1()`, which performs the test for multiple structural breaks in vairnce and no breaks in mean. Below, we use for loops to obtain the results when testing for structural breaks in variance, first when $m=0$, and then for cases when $m\geq1$. 
+
+```{r}
+tab13_c <- matrix(0, M+1, 2*N+1)
+
+xm <- 0
+for (xn in 1:N){
+  pslr1_out <- mbreaks::pslr1(yint, n = xn, trm = 0.1, z = matrix(1,length(yint),1))
+  tab13_c[(xm+1),xn] <- round(pslr1_out$suplr,2)
+}
+
+for (xm in 1:M){
+  for (xn in 1:N){
+    pslr2_out <- mbreaks::pslr2(yint, m = xm, n = xn, trm = 0.1, z = matrix(1,length(yint),1))
+    tab13_c[(xm+1),xn] <- round(pslr2_out$suplr,2)
+  }
+}
+```
+
+The next column includes results for the `UDmax` version of the $\text{sup}LR_{1,T}$ and $\text{sup}LR_{2,T}$ test, namely, the $UD\text{max}LR_{1,T}$ and $UD\text{max}LR_{2,T}$. Below, we perform these tests using the function `pslr5()` (for $UD\text{max}LR_{1,T}$) `pslr6()` (for $UD\text{max}LR_{2,T}$) from the `mbreaks` `R`-package.
+
+```{r}
+pslr5_out <- mbreaks::pslr5(yint, N = N, trm = 0.1, z = matrix(1,length(yint),1))
+tab13_c[1,N+1] <- round(pslr5_out$UDmaxLRT,2)
+
+for (xm in 1:M){
+  pslr6_out <- mbreaks::pslr6(yint, m = xm, N = N, trm = 0.1, z = matrix(1,length(yint),1))
+  tab13_c[(xm+1),N+1] <- round(pslr6_out$UDmaxLRT,2)
+}
+```
+
+The following two columns contain results for the sequential test for $n$ strutural changes in variance versus $n + 1$ strutural changes in the variance, given $m$ structural changes in variance. Namely, this is the $\text{sup}Seq_{10,T}$ test described in PYZ(2020). In the `mbreaks` `R`-package this test is performed by using the function `pslr10()`. As with the `pslr9()` function, when using this function the value specified for $n$ is the value to be tested under the null hypothesis. That is, if we use $n=1$ as an input in `pslr10()` then we are testing $H_0: n=1$ versus $H_1: n=2$. Below, we again use for loops to obtain the results of this test for different numbers of structural breaks in the variance while conditioning on different number of structural chnages in mean.
+
+```{r}
+for (xm in 0:M){
+  for (xn in 1:N){
+    pslr10_out <- mbreaks::pslr10(yint, m = xm, n = xn, trm = 0.1, z = matrix(1,length(yint),1))
+    tab13_c[(xm+1),(N+1+xn)] <- round(pslr10_out$supSeq,2)
+  }
+}
+```
+
+As with panel b), the last two columns of table 13 panel c) contain the break dates. The sequential procedure suggests there are two structural changes in the variance for all different values of $m$ considered here, except when $m=1$, in which case we find there is only one break in variance. As a result, here we use the `pslr1()` and `pslr2()` functions to obtain the globally optimal break dates for each case. These functions return the indices for the break dates, which are then used with the date vector previously generated to obtain break dates. 
+
+```{r}
+xn <- 2
+tab13_c_dates <- matrix("",M+1,xn)
+
+pslr1_out <- mbreaks::pslr1(yint, n = xn, trm = 0.1, z = matrix(1,length(yint),1))
+tab13_c_dates[1,1:xn] <- as.character(yint_date[pslr1_out$brvstar])
+
+pslr2_out <- mbreaks::pslr2(yint, m = 1, n = 1, trm = 0.1, z = matrix(1,length(yint),1))
+tab13_c_dates[2,1] <- as.character(yint_date[pslr2_out$brvstar])
+
+for (xm in 2:M){
+  pslr2_out <- mbreaks::pslr2(yint, m = xm, n = xn, trm = 0.1, z = matrix(1,length(yint),1))
+  tab13_c_dates[(xm+1),1:xn] <- as.character(yint_date[pslr2_out$brvstar])
+}
+```
+
+Finally, we set the column and row names of our table 13 c) to resemble those of the table provided in PYZ (2020) as before and display this panel here.
+
+```{r}
+tab13_c <- data.frame(cbind(tab13_c,tab13_c_dates))
+colnames(tab13_c) <- c("$n_a=1$","$n_a=2$","$N=2$","$n_a=1$","$n_a=2$","break","dates")
+rownames(tab13_c) <- c("$m_a=0$","$m_a=1$","$m_a=2$","$m_a=3$")
+
+knitr::kable(tab13_c, caption = "Table 13 c) Tests for structural changes in variance")
+```
+
+
+### Table 13: Empirical results for the real interest rate (revised)
+
+Here, we now provide the complete table 13 for convenience. 
+
+```{r, results = "hold"}
+knitr::kable(tab13_a, caption = "Table 13 a) Tests for structural changes in mean and/or variance")
+
+knitr::kable(tab13_b, caption = "Table 13 b) Tests for structural changes in mean")
+
+knitr::kable(tab13_c, caption = "Table 13 c) Tests for structural changes in variance")
+```
+
+
+## References 
+
+[1] Bai, J., \& Perron, P. (1998), ``[Estimating and Testing Linear Models with Multiple Structural Changes](https://www.jstor.org/stable/2998540)''. Econometrica, 66(1), 47–78.
+
+[2] Perron, P., Yamamoto, Y., \& Zhou, J. (2020), ``[Testing Jointly for Structural Changes in the Error Variance and Coefficients of a Linear Regression Model](https://www.econometricsociety.org/publications/quantitative-economics/2020/07/01/Testing-jointly-for-structural-changes-in-the-error-variance-and-coefficients-of-a-linear-regression-model),'' (with Yohei Yamamoto and Jing Zhou), Quantitative Economics 11 (2020), 1019-1057 (with [online supplement](https://blogs.bu.edu/perron/files/2023/02/correction_QE_table13_20230218.pdf))
+
+
+
